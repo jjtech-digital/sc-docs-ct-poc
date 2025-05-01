@@ -1,6 +1,7 @@
 "use client";
 import { useCart } from "@/context/CartContext";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function CartPage() {
   const { cart, removeFromCart, clearCart } = useCart();
@@ -23,7 +24,9 @@ export default function CartPage() {
                 key={item.id}
                 className="flex items-center justify-between border-b border-b-cyan-600 py-3"
               >
-                <img
+                <Image
+                  width={64}
+                  height={64}
                   src={item.imageUrl}
                   alt={item.title}
                   className="w-16 h-16 object-cover rounded-md mr-4"

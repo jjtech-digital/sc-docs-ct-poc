@@ -1,15 +1,18 @@
 "use client";
 import { useCart } from "@/context/CartContext";
 import { ProductProps } from "@/dummyData/productsData";
+import Image from "next/image";
 
 const ProductDetailClient = ({ product }: { product: ProductProps }) => {
   const { addToCart } = useCart();
   return (
     <div className="max-w-5xl mx-auto p-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <img
+        <Image
           src={product.imageUrl}
           alt={product.title}
+          width={500}
+          height={500}
           className="w-full h-auto rounded shadow"
         />
         <div>

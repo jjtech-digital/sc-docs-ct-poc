@@ -3,6 +3,7 @@ import { useCart } from "@/context/CartContext";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
+import Image from "next/image";
 
 type ShippingInfo = {
   firstName: string;
@@ -179,14 +180,16 @@ export default function CheckoutPage() {
 
       <div className="bg-gray-100 p-6 rounded-md shadow-md h-fit">
         <h2 className="text-lg font-bold mb-4">Order Summary</h2>
-        <div className="space-y-4 border-b">
+        <div className="space-y-4 border-b pb-4">
           {cart.map((item) => (
             <div key={item.id} className="flex items-center justify-between">
               <div className="flex items-center">
-                <img
+                <Image
+                  width={64}
+                  height={64}
                   src={item.imageUrl}
                   alt={item.title}
-                  className="w-16 h-16 object-cover rounded-md mr-4"
+                  className="object-cover rounded-md mr-4"
                 />
                 <div>
                   <p className="font-medium">{item.title}</p>
