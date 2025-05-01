@@ -66,7 +66,7 @@ export default function CartPage() {
         <Link href="/checkout">
           <button
             className="mt-4 px-6 py-2 bg-cyan-700 text-white rounded w-full cursor-pointer"
-            disabled={cart.length < 1 ? true : false}
+            disabled={cart.length < 1}
           >
             Proceed to Checkout
           </button>
