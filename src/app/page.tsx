@@ -1,7 +1,11 @@
+import ProductCard from "@/components/ProductCard";
+import { ProductProps, products } from "@/dummyData/productsData";
 export default function Home() {
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      CT checkout
+    <div className="m-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+      {products.map((product: ProductProps) => (
+        <ProductCard key={product.id} product={product} />
+      ))}
     </div>
   );
 }
