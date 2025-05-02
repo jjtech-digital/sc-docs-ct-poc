@@ -1,6 +1,18 @@
+'use client'
 import ProductCard from "@/components/ProductCard";
-import { ProductProps, products } from "@/dummyData/productsData";
+import { ProductProps } from "@/types/ProductProps";
+import { useEffect, useState } from "react";
 export default function Home() {
+  const [products, setProducts] = useState<ProductProps[]>([]);
+  useEffect(()=> {
+    fetchProducts();
+  }, [])
+
+  const fetchProducts = async () => {
+    const res = await fetch("/api/products?limit=6&offset=12", { headers : { "Content-Type": "application/json", "Accept-Language": "en-US" } });
+    const response = await res.json();
+    setProducts(response?.products );
+  }
   return (
     <div className="m-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
       {products.map((product: ProductProps) => (
