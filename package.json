@@ -13,7 +13,9 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.56.1",
-    "react-toastify": "^11.0.5"
+    "react-toastify": "^11.0.5",
+    "@commercetools/platform-sdk": "^8.8.0",
+    "@commercetools/ts-client": "^3.3.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
