@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-export default function ClientWrapper({
+export default function QueryClientProviderWrapper({
   children,
 }: {
   children: React.ReactNode;

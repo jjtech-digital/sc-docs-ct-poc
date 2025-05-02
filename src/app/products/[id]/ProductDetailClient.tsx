@@ -3,6 +3,7 @@ import { useCart } from "@/context/CartContext";
 import { ProductProps } from "@/types/ProductProps";
 import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
+import Loader from "@/components/Loader";
 
 const fetchProduct = async (id: string) => {
   const res = await fetch(`/api/products/${id}`, {
@@ -32,7 +33,7 @@ const ProductDetailClient = ({ id }: { id: string }) => {
   const { addToCart } = useCart();
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <Loader width={40} height={40} className="animate-spin" />;
   }
 
   if (error || !product) {
@@ -43,7 +44,7 @@ const ProductDetailClient = ({ id }: { id: string }) => {
     <div className="max-w-5xl mx-auto p-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {product?.masterVariant?.images?.[0]?.url && (
-          <div className="w-full h-[500px] relative mr-5">
+          <div className="w-full h-full aspect-square md:aspect-auto relative mr-5">
             <Image
               src={product?.masterVariant?.images?.[0]?.url}
               alt={product.name?.["en-US"]}
@@ -53,9 +54,11 @@ const ProductDetailClient = ({ id }: { id: string }) => {
           </div>
         )}
         <div>
-          <h1 className="text-3xl font-bold mb-2">{product.title}</h1>
+          {product?.name?.["en-US"] && (
+            <h1 className="text-3xl mb-2">{product.name["en-US"]}</h1>
+          )}
           {product?.masterVariant?.prices?.[0]?.value.centAmount && (
-            <p className="text-xl text-gray-800 mb-2">
+            <p className="text-xl text-gray-800 mb-2 font-semibold">
               ${product?.masterVariant?.prices?.[0]?.value.centAmount / 100}
             </p>
           )}
@@ -89,7 +92,7 @@ const ProductDetailClient = ({ id }: { id: string }) => {
 
           <button
             onClick={() => addToCart(product)}
-            className="mt-4 w-full bg-cyan-900 text-white py-2 rounded hover:bg-cyan-700 transition cursor-pointer"
+            className="mt-4 w-full bg-black text-white py-2 rounded border hover:bg-white hover:text-black hover:border hover:border-black transition cursor-pointer font-semibold"
           >
             Add to Cart
           </button>

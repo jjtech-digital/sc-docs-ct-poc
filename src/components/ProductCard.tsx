@@ -23,11 +23,11 @@ const ProductCard = ({ product }: { product: ProductProps }) => {
         </div>
       </Link>
       <div className="p-4">
-        <h3 className="text-lg font-semibold">{name?.["en-US"]}</h3>
-        <p className="text-gray-700 mt-2">${price.centAmount / 100}</p>
+        <h3 className="text-lg">{name?.["en-US"]}</h3>
+        <p className="text-gray-700 mt-2 font-semibold">${price.centAmount / 100}</p>
         <button
           onClick={() => addToCart(product)}
-          className="mt-4 w-full bg-cyan-900 text-white py-2 rounded hover:bg-cyan-700 transition cursor-pointer"
+          className="mt-4 w-full bg-black text-white py-2 rounded border hover:bg-white hover:text-black hover:border hover:border-black transition cursor-pointer font-semibold"
         >
           Add to Cart
         </button>
