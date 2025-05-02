@@ -5,6 +5,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { CartProvider } from "@/context/CartContext";
 import { ToastContainer } from "react-toastify";
+import ClientWrapper from "./ClientWrapper";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,15 +32,16 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <CartProvider>
-          <ToastContainer />
-          <Header />
-
-          {children}
-          <div className="fixed bottom-0 w-full mt-5">
-            <Footer />
-          </div>
-        </CartProvider>
+        <ClientWrapper>
+          <CartProvider>
+            <ToastContainer />
+            <Header />
+            <div className="pb-16">{children}</div>
+            <div className="fixed bottom-0 w-full">
+              <Footer />
+            </div>
+          </CartProvider>
+        </ClientWrapper>
       </body>
     </html>
   );

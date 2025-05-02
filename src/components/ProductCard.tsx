@@ -13,12 +13,12 @@ const ProductCard = ({ product }: { product: ProductProps }) => {
       key={id}
     >
       <Link href={`/products/${id}`}>
-      <div className="relative w-full h-64">
-          <Image 
-            src={image} 
-            alt={name?.["en-US"]} 
-            fill 
-            className="object-contain p-3" 
+        <div className="relative w-full h-64">
+          <Image
+            src={image}
+            alt={name?.["en-US"]}
+            fill
+            className="object-contain p-3"
           />
         </div>
       </Link>

@@ -2,7 +2,7 @@ export interface ProductProps {
   id: string;
   image: string;
   description?: {
-    'en-US' : string;
+    "en-US": string;
   };
   key?: string;
   title: string;
@@ -12,8 +12,8 @@ export interface ProductProps {
     fractionDigits: number;
     type: string;
   };
-  name: {"en-US" : string};
-  slug?: {"en-US" : string};
+  name: { "en-US": string };
+  slug?: { "en-US": string };
   masterVariant?: {
     id: string;
     prices: {
@@ -28,12 +28,11 @@ export interface ProductProps {
     attributes?: {
       name: string;
       value: {
-        'en-US' : string;
+        "en-US": string;
       };
     }[];
     availability?: {
       isOnStock: boolean;
     };
-  }
+  };
 }
-

@@ -28,7 +28,7 @@ export default function CartPage() {
                   width={64}
                   height={64}
                   src={item.image}
-                  alt={item.name["en-US"]}
+                  alt={item.name?.["en-US"]}
                   className="w-16 h-16 object-contain rounded-md mr-4"
                 />
 
