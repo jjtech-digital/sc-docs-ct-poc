@@ -1,4 +1,3 @@
-import { withExceptionFilter } from '@/lib/utils/withExceptionFilter';
 import { apiRoot } from '@/lib/ctClient';
 import { NextRequest, NextResponse } from 'next/server';
 import { getLocaleFromRequest } from '@/lib/utils/getLocaleFromRequest';
@@ -26,4 +25,4 @@ async function handler(
     return NextResponse.json(product);
 }
 
-export const GET = withExceptionFilter(handler);
+export const GET = handler as (req: NextRequest) => Promise<NextResponse>;
