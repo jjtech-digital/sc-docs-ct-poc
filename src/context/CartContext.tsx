@@ -1,6 +1,6 @@
 "use client";
 
-import { ProductProps } from "@/dummyData/productsData";
+import { ProductProps } from "@/types/ProductProps";
 import { createContext, useContext, useState, ReactNode } from "react";
 import { toast } from "react-toastify";
 
@@ -9,7 +9,7 @@ type CartItem = ProductProps & { quantity: number };
 type CartContextType = {
   cart: CartItem[];
   addToCart: (product: ProductProps) => void;
-  removeFromCart: (id: number) => void;
+  removeFromCart: (id: string) => void;
   clearCart: () => void;
 };
 
@@ -34,7 +34,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     toast("Added to cart");
   };
 
-  const removeFromCart = (id: number) => {
+  const removeFromCart = (id: string) => {
     setCart((prev) => prev.filter((item) => item.id !== id));
     toast("Removed from cart");
   };

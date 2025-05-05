@@ -33,7 +33,7 @@ export default function CheckoutPage() {
   } = useForm<ShippingInfo>();
 
   const totalPrice = cart.reduce(
-    (total, item) => total + item.price * item.quantity,
+    (total, item) => total + (item?.price?.centAmount / 100) * item.quantity,
     0
   );
 
@@ -184,22 +184,25 @@ export default function CheckoutPage() {
           {cart.map((item) => (
             <div key={item.id} className="flex items-center justify-between">
               <div className="flex items-center">
-                <Image
-                  width={64}
-                  height={64}
-                  src={item.imageUrl}
-                  alt={item.title}
-                  className="object-cover rounded-md mr-4"
-                />
+                {item?.image && (
+                  <Image
+                    width={64}
+                    height={64}
+                    src={item?.image}
+                    alt={item?.name?.["en-US"]}
+                    className="object-cover rounded-md mr-4"
+                  />
+                )}
+
                 <div>
                   <p className="font-medium">{item.title}</p>
                   <p className="text-sm text-gray-600">
-                    {item.quantity} x ${item.price.toFixed(2)}
+                    {item.quantity} x ${item.price.centAmount / 100}
                   </p>
                 </div>
               </div>
               <span className="font-bold">
-                ${(item.price * item.quantity).toFixed(2)}
+                ${((item.price.centAmount / 100) * item.quantity).toFixed(2)}
               </span>
             </div>
           ))}
