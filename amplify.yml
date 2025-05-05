@@ -3,10 +3,10 @@ frontend:
   phases:
     preBuild:
       commands:
-        - npm install -g pnpm
         - pnpm install
     build:
       commands:
+        - env | grep -e CT_ >> .env.production
         - pnpm run build
   artifacts:
     baseDirectory: .next
@@ -14,5 +14,6 @@ frontend:
       - '**/*'
   cache:
     paths:
+      - .next/cache/**/*
       - node_modules/**/*
-      - .pnpm-store/**/*
+  framework: nextjs
