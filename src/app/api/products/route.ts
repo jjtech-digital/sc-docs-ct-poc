@@ -1,7 +1,7 @@
-import { withExceptionFilter } from '@/lib/utils/withExceptionFilter';
 import { apiRoot } from '@/lib/ctClient';
 import { NextRequest, NextResponse } from 'next/server';
 import { getLocaleFromRequest } from '@/lib/utils/getLocaleFromRequest';
+import { withExceptionFilter } from '@/lib/utils/withExceptionFilter';
 
 async function handler(req: NextRequest): Promise<NextResponse> {
     const { searchParams } = new URL(req.url);

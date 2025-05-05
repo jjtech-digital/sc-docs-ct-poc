@@ -1,7 +1,7 @@
-import { withExceptionFilter } from '@/lib/utils/withExceptionFilter';
 import { apiRoot } from '@/lib/ctClient';
 import { NextRequest, NextResponse } from 'next/server';
 import { getLocaleFromRequest } from '@/lib/utils/getLocaleFromRequest';
+import { ApiError } from 'next/dist/server/api-utils';
 
 async function handler(
     req: NextRequest,
@@ -9,7 +9,7 @@ async function handler(
 ): Promise<NextResponse> {
     const params = await context?.params;
     const id = await params?.id;
-    if (!id) throw new Error('Missing product ID');
+    if (!id) throw new ApiError(400, 'Product ID is required.');
     const locale = getLocaleFromRequest(req);
 
     const getProduct = await apiRoot
@@ -26,4 +26,4 @@ async function handler(
     return NextResponse.json(product);
 }
 
-export const GET = withExceptionFilter(handler);
+export const GET = handler as (req: NextRequest) => Promise<NextResponse>;
