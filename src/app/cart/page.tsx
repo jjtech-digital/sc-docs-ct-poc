@@ -4,16 +4,13 @@ import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import { CartItem } from "@/types/types";
+import Cookies from "js-cookie";
+import { checkoutFlow } from "@commercetools/checkout-browser-sdk";
 
 export default function CartPage() {
-  const { 
-    cart, 
-    removeFromCart, 
-    clearCart, 
-    updateCartQuantity,
-    isLoading 
-  } = useCart();
-  
+  const { cart, removeFromCart, clearCart, updateCartQuantity, isLoading } =
+    useCart();
+
   const [quantities, setQuantities] = useState<{ [key: string]: number }>({});
 
   useEffect(() => {
@@ -61,6 +58,52 @@ export default function CartPage() {
     );
   }
 
+  const startCheckoutFlow = async () => {
+    const cookie = Cookies.get("user");
+    console.log(cookie);
+    if (cookie) {
+      try {
+        const json = JSON.parse(cookie);
+        console.log(json);
+
+        const res = await fetch(
+          "https://session.australia-southeast1.gcp.commercetools.com/checkout-dev/sessions",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${json.access_token}`,
+            },
+            body: JSON.stringify({
+              cart: {
+                cartRef: {
+                  id: `${cart?.id}`
+                },
+              },
+              metadata: {
+                applicationKey: "demo-commercetools-checkout",
+              },
+            }),
+          }
+        );
+
+        const data = await res.json();
+        console.log("Checkout session created:", data);
+
+        checkoutFlow({
+          sessionId: data.id,
+          projectKey: "checkout-dev",
+          region: "australia-southeast1.gcp",
+          logInfo: true,
+          logWarn: true,
+          logError: true,
+        });
+      } catch (e) {
+        console.error("Failed to parse cookie:", e);
+      }
+    }
+  };
+
   return (
     <div className="md:mx-auto p-6 flex flex-col gap-10 md:space-x-8 items-center md:flex-row md:gap-0">
       <div className="w-[325px] md:w-full md:min-w-[500px]">
@@ -68,100 +111,100 @@ export default function CartPage() {
 
         <>
           {cart.lineItems.map((item: CartItem) => {
-            const discountedPrice = item.price?.discounted?.value.centAmount / 100;
+            const discountedPrice =
+              item.price?.discounted?.value.centAmount / 100;
             const originalPrice = item.price?.value.centAmount / 100;
             return (
               <div key={item.id}>
-              <div
-                className="flex items-center justify-between rounded-md m-2 p-3 hover:bg-gray-100 transition-colors"
-              >
-                {item?.image && 
-                <Link href={`/products/${item.id}`}>
-                <Image
-                width={64}
-                height={64}
-                src={item.image}
-                alt={item.name?.["en-US"]}
-                className="w-16 h-16 object-contain rounded-md mr-4 cursor-pointer"
-              /></Link> }
-                
-
-                <div className="flex-grow">
-                  <p className="mb-4">{item.name?.["en-US"]}</p>
-                  <div className="flex items-center">
-                    <div className="flex items-start my-2 border border-gray-300 rounded-md shadow-sm w-fit">
-                      <button
-                        onClick={() => {
-                          const newQuantity = Math.max(
-                            1,
-                            (quantities[item.id] || item.quantity) - 1
-                          );
-                          handleQuantityChange(item.id, newQuantity);
-                          updateCartQuantity(item.id, newQuantity);
-                        }}
-                        className="w-6 h-7 flex items-center justify-center text-cyan-800 font-bold rounded-l-md hover:bg-gray-200 transition-colors"
-                        aria-label="Decrease quantity"
-                      >
-                        −
-                      </button>
-                      <input
-                        type="number"
-                        className="w-7 h-7 border-0 text-center focus:ring-0 focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                        min={1}
-                        value={quantities[item.id] || item.quantity}
-                        onChange={(e) =>
-                          handleQuantityChange(
-                            item.id,
-                            parseInt(e.target.value) || 1
-                          )
-                        }
-                        onBlur={() => handleUpdateQuantity(item.id)}
+                <div className="flex items-center justify-between rounded-md m-2 p-3 hover:bg-gray-100 transition-colors">
+                  {item?.image && (
+                    <Link href={`/products/${item.id}`}>
+                      <Image
+                        width={64}
+                        height={64}
+                        src={item.image}
+                        alt={item.name?.["en-US"]}
+                        className="w-16 h-16 object-contain rounded-md mr-4 cursor-pointer"
                       />
-                      <button
-                        onClick={() => {
-                          const newQuantity =
-                            (quantities[item.id] || item.quantity) + 1;
-                          handleQuantityChange(item.id, newQuantity);
-                          updateCartQuantity(item.id, newQuantity);
-                        }}
-                        className="w-6 h-7 flex items-center justify-center text-cyan-800 font-bold rounded-r-md hover:bg-gray-200 transition-colors"
-                        aria-label="Increase quantity"
-                      >
-                        +
-                      </button>
+                    </Link>
+                  )}
+
+                  <div className="flex-grow">
+                    <p className="mb-4">{item.name?.["en-US"]}</p>
+                    <div className="flex items-center">
+                      <div className="flex items-start my-2 border border-gray-300 rounded-md shadow-sm w-fit">
+                        <button
+                          onClick={() => {
+                            const newQuantity = Math.max(
+                              1,
+                              (quantities[item.id] || item.quantity) - 1
+                            );
+                            handleQuantityChange(item.id, newQuantity);
+                            updateCartQuantity(item.id, newQuantity);
+                          }}
+                          className="w-6 h-7 flex items-center justify-center text-cyan-800 font-bold rounded-l-md hover:bg-gray-200 transition-colors"
+                          aria-label="Decrease quantity"
+                        >
+                          −
+                        </button>
+                        <input
+                          type="number"
+                          className="w-7 h-7 border-0 text-center focus:ring-0 focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                          min={1}
+                          value={quantities[item.id] || item.quantity}
+                          onChange={(e) =>
+                            handleQuantityChange(
+                              item.id,
+                              parseInt(e.target.value) || 1
+                            )
+                          }
+                          onBlur={() => handleUpdateQuantity(item.id)}
+                        />
+                        <button
+                          onClick={() => {
+                            const newQuantity =
+                              (quantities[item.id] || item.quantity) + 1;
+                            handleQuantityChange(item.id, newQuantity);
+                            updateCartQuantity(item.id, newQuantity);
+                          }}
+                          className="w-6 h-7 flex items-center justify-center text-cyan-800 font-bold rounded-r-md hover:bg-gray-200 transition-colors"
+                          aria-label="Increase quantity"
+                        >
+                          +
+                        </button>
+                      </div>
+                      {discountedPrice ? (
+                        <div className="flex flex-col ml-2">
+                          <span className="text-[11px] text-gray-500 line-through">
+                            ${originalPrice}
+                          </span>
+                          <span className="text-xs font-bold text-black">
+                            ${discountedPrice} each
+                          </span>
+                        </div>
+                      ) : (
+                        <div>
+                          <span className="text-xs font-bold text-black ml-2">
+                            ${originalPrice} each
+                          </span>
+                        </div>
+                      )}
                     </div>
-                    {discountedPrice ? (
-                      <div className="flex flex-col ml-2">
-                        <span className="text-[11px] text-gray-500 line-through">
-                          ${originalPrice}
-                        </span>
-                        <span className="text-xs font-bold text-black">
-                          ${discountedPrice} each
-                        </span>
-                      </div>
-                    ) : (
-                      <div>
-                        <span className="text-xs font-bold text-black ml-2">
-                          ${originalPrice} each
-                        </span>
-                      </div>
-                    )}
+                  </div>
+
+                  <div className="flex flex-col items-center justify-between">
+                    <span className="text-lg font-bold text-black mb-4">
+                      ${item?.totalPrice?.centAmount / 100}
+                    </span>
+                    <button
+                      onClick={() => removeFromCart(item.id)}
+                      className="text-red-500 hover:text-red-700 text-sm font-medium transition-colors cursor-pointer hover:underline"
+                    >
+                      Remove
+                    </button>
                   </div>
                 </div>
-
-                <div className="flex flex-col items-center justify-between">
-                  <span className="text-lg font-bold text-black mb-4">
-                    ${item?.totalPrice?.centAmount / 100}
-                  </span>
-                  <button
-                    onClick={() => removeFromCart(item.id)}
-                    className="text-red-500 hover:text-red-700 text-sm font-medium transition-colors cursor-pointer hover:underline"
-                  >
-                    Remove
-                  </button>
-                </div>
-              </div>
-              <div className="w-full border-b-[0.5px] border-b-gray-400"></div>
+                <div className="w-full border-b-[0.5px] border-b-gray-400"></div>
               </div>
             );
           })}
@@ -185,14 +228,13 @@ export default function CartPage() {
           </div>
         )}
 
-        <Link href="/checkout">
-          <button
-            className="mt-4 px-6 py-2 bg-cyan-700 text-white rounded w-full cursor-pointer"
-            disabled={!cart?.lineItems || cart.lineItems.length < 1}
-          >
-            Proceed to Checkout
-          </button>
-        </Link>
+        <button
+          className="mt-4 px-6 py-2 bg-cyan-700 text-white rounded w-full cursor-pointer"
+          disabled={!cart?.lineItems || cart.lineItems.length < 1}
+          onClick={startCheckoutFlow}
+        >
+          Proceed to Checkout
+        </button>
       </div>
     </div>
   );
