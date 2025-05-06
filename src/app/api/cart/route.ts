@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { ApiError } from "next/dist/server/api-utils";
-import { getOrRefreshCookie } from "@/lib/utils/getOrRefreshCookie";
+
 import { getOrCreateCart } from "@/lib/utils/getOrCreateCart";
 import { withExceptionFilter } from "@/lib/utils/withExceptionFilter";
 import { getAllCookie } from "@/lib/utils/getAllCookie";
