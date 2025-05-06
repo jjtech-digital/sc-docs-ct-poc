@@ -1,6 +1,6 @@
 "use client";
 import ProductCard from "@/components/ProductCard";
-import { ProductProps } from "@/types/ProductProps";
+import { ProductProps } from "@/types/types";
 import { useQuery } from "@tanstack/react-query";
 import Loader from "@/components/Loader";
 
