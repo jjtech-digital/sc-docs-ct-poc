@@ -77,11 +77,11 @@ export default function CartPage() {
             body: JSON.stringify({
               cart: {
                 cartRef: {
-                  id: `${cart?.id}`
+                  id: `${cart?.id}`,
                 },
               },
               metadata: {
-                applicationKey: "demo-commercetools-checkout",
+                applicationKey: "demo-commercetools-checkout-taxes",
               },
             }),
           }
