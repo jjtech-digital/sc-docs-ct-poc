@@ -1,63 +1,60 @@
 "use client";
 
-import { ProductProps } from "@/types/ProductProps";
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useContext, ReactNode, useCallback } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
-
-type CartItem = ProductProps & { quantity: number };
-
-type CartContextType = {
-  cart: CartItem[];
-  addToCart: (product: ProductProps) => Promise<void>;
-  removeFromCart: (id: string) => Promise<void>;
-  clearCart: () => Promise<void>;
-  getCart: () => Promise<CartItem[]>;
-};
+import { CART_QUERY_KEY, emptyCart } from "@/lib/utils/constants";
+import { CartContextType } from "@/types/types";
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider = ({ children }: { children: ReactNode }) => {
-  const [cart, setCart] = useState<CartItem[]>([]);
+  const queryClient = useQueryClient();
 
-  const getCart = async () => {
-    try {
-      const res = await fetch("/api/cart", {
-        headers: {
-          "Content-Type": "application/json",
-          "Accept-Language": "en-US",
-        },
-      });
-      
-      if (!res.ok) {
-        throw new Error("Failed to fetch cart");
+  const { data: cart = {...emptyCart}, isLoading, refetch } = useQuery({
+    queryKey: [CART_QUERY_KEY],
+    queryFn: async () => {
+      try {
+        const res = await fetch("/api/cart", {
+          headers: {
+            "Content-Type": "application/json",
+            "Accept-Language": "en-US",
+          },
+          cache: "no-store"
+        });
+        
+        if (!res.ok) {
+          throw new Error("Failed to fetch cart");
+        }
+        
+        const cartData = await res.json();
+        if (!cartData) {
+          return emptyCart;
+        }
+        
+        return cartData?.cart || emptyCart;
+      } catch (error) {
+        console.error("Error fetching cart:", error);
+        toast.error("Failed to load cart");
+        return emptyCart;
       }
-      
-      const cartItems = await res.json();
-      if (!cartItems) {
-        return [];
-      }
-      
-      if (cartItems?.products?.length >= 1) {
-        setCart(cartItems.products);
-      }
-      
-      return cartItems?.products || [];
-    } catch (error) {
-      console.error("Error fetching cart:", error);
-      toast.error("Failed to load cart");
-      return [];
-    }
-  };
+    },
+  });
 
-  const addToCart = async (product: ProductProps) => {
-    try {
+  const getCart = useCallback(async () => {
+    await refetch();
+    return cart;
+  }, [refetch, cart]);
+
+  const addToCartMutation = useMutation({
+    mutationFn: async (id: string) => {
       const res = await fetch("/api/cart/add-item", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          productId: product.id,
+          productId: id,
           variantId: 1,
           quantity: 1,
         }),
@@ -66,29 +63,23 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       if (!res.ok) {
         throw new Error("Failed to add item to cart");
       }
-
-      setCart((prev) => {
-        const existing = prev.find((item) => item.id === product.id);
-        if (existing) {
-          return prev.map((item) =>
-            item.id === product.id
-              ? { ...item, quantity: item.quantity + 1 }
-              : item
-          );
-        }
-
-        return [...prev, { ...product, quantity: 1 }];
-      });
       
+      return res.json();
+    },
+    onSuccess: (data) => {
+      if (data?.cart) {
+        queryClient.setQueryData([CART_QUERY_KEY], data.cart);
+      }
       toast("Added to cart");
-    } catch (error) {
+    },
+    onError: (error) => {
       console.error("Error adding to cart:", error);
       toast.error("Failed to add to cart");
     }
-  };
+  });
 
-  const removeFromCart = async (id: string) => {
-    try {
+  const removeFromCartMutation = useMutation({
+    mutationFn: async (id: string) => {
       const res = await fetch("/api/cart/remove-item", {
         method: "POST",
         headers: {
@@ -102,47 +93,103 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       if (!res.ok) {
         throw new Error("Failed to remove item from cart");
       }
-
-      setCart((prev) => prev.filter((item) => item.id !== id));
+      
+      return res.json();
+    },
+    onSuccess: (data) => {
+      if (data?.cart) {
+        queryClient.setQueryData([CART_QUERY_KEY], data.cart);
+      }
       toast("Removed from cart");
-    } catch (error) {
+    },
+    onError: (error) => {
       console.error("Error removing from cart:", error);
       toast.error("Failed to remove from cart");
     }
-  };
+  });
 
-  const clearCart = async () => {
-    try {
-      const currentCart = await getCart();
-      
-      if (currentCart && currentCart.length > 0) {
-        const removePromises = currentCart.map((item : ProductProps )=> 
-          fetch("/api/cart/remove-item", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              lineItemId: item.id,
-            }),
-          })
-        );
-        
-        await Promise.all(removePromises);
+  const updateCartQuantityMutation = useMutation({
+    mutationFn: async ({ id, quantity }: { id: string; quantity: number }) => {
+      if (quantity < 1) {
+        return removeFromCartMutation.mutateAsync(id);
       }
       
-      setCart([]);
+      const res = await fetch("/api/cart/update-item", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          lineItemId: id,
+          quantity,
+        }),
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to update item quantity");
+      }
+      
+      return res.json();
+    },
+    onSuccess: (data) => {
+      if (data?.cart) {
+        queryClient.setQueryData([CART_QUERY_KEY], data.cart);
+      }
+      toast("Quantity updated");
+    },
+    onError: (error) => {
+      console.error("Error updating quantity:", error);
+      toast.error("Failed to update quantity");
+    }
+  });
+
+  const clearCartMutation = useMutation({
+    mutationFn: async () => {
+      const res = await fetch("/api/cart/clear-cart", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to clear cart");
+      }
+      
+      return res.json();
+    },
+    onSuccess: (data) => {
+      if (data?.cart) {
+        queryClient.setQueryData([CART_QUERY_KEY], data.cart);
+      } else {
+        queryClient.setQueryData([CART_QUERY_KEY], emptyCart);
+      }
       toast("Cart cleared");
-    } catch (error) {
+    },
+    onError: (error) => {
       console.error("Error clearing cart:", error);
       toast.error("Failed to clear cart");
     }
+  });
+
+  const addToCart = (id: string) => addToCartMutation.mutate(id);
+  const removeFromCart = (id: string) => removeFromCartMutation.mutate(id);
+  const updateCartQuantity = (id: string, quantity: number) => 
+    updateCartQuantityMutation.mutate({ id, quantity });
+  const clearCart = () => clearCartMutation.mutate();
+
+  const contextValue = {
+    cart,
+    addToCart,
+    removeFromCart,
+    updateCartQuantity,
+    clearCart,
+    getCart,
+    isLoading
   };
 
   return (
-    <CartContext.Provider
-      value={{ cart, addToCart, removeFromCart, clearCart, getCart }}
-    >
+    <CartContext.Provider value={contextValue}>
       {children}
     </CartContext.Provider>
   );
