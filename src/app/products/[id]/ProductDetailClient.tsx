@@ -1,6 +1,6 @@
 "use client";
 import { useCart } from "@/context/CartContext";
-import { ProductProps } from "@/types/ProductProps";
+import { ProductProps } from "@/types/types";
 import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
 import Loader from "@/components/Loader";
@@ -91,7 +91,7 @@ const ProductDetailClient = ({ id }: { id: string }) => {
           </div>
 
           <button
-            onClick={() => addToCart(product)}
+            onClick={() => addToCart(product?.id)}
             className="mt-4 w-full bg-black text-white py-2 rounded border hover:bg-white hover:text-black hover:border hover:border-black transition cursor-pointer font-semibold"
           >
             Add to Cart

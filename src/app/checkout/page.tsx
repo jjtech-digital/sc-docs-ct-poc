@@ -1,9 +1,10 @@
 "use client";
-import { useCart } from "@/context/CartContext";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import {  useCart } from "@/context/CartContext";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import Image from "next/image";
+import { emptyCart } from "@/lib/utils/constants";
+import { Cart } from "@/types/types";
 
 type ShippingInfo = {
   firstName: string;
@@ -18,24 +19,23 @@ type ShippingInfo = {
 };
 
 export default function CheckoutPage() {
-  const { cart } = useCart();
-  const router = useRouter();
+  const [cart, setCart] = useState<Cart>({ ...emptyCart });
+  const { getCart } = useCart();
 
   useEffect(() => {
-    if (cart.length === 0) {
-      router.push("/");
-    }
-  }, [cart, router]);
+    const fetchCart = async () => {
+      const cartData = await getCart();
+      setCart(cartData);
+    };
+
+    fetchCart();
+  }, []);
+
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<ShippingInfo>();
-
-  const totalPrice = cart.reduce(
-    (total, item) => total + (item?.price?.centAmount / 100) * item.quantity,
-    0
-  );
 
   const onSubmit = (data: ShippingInfo) => {
     console.log("Submitted shipping data:", data);
@@ -181,7 +181,7 @@ export default function CheckoutPage() {
       <div className="bg-gray-100 p-6 rounded-md shadow-md h-fit">
         <h2 className="text-lg font-bold mb-4">Order Summary</h2>
         <div className="space-y-4 border-b pb-4">
-          {cart.map((item) => (
+          {cart?.lineItems?.map((item) => (
             <div key={item.id} className="flex items-center justify-between">
               <div className="flex items-center">
                 {item?.image && (
@@ -195,22 +195,30 @@ export default function CheckoutPage() {
                 )}
 
                 <div>
-                  <p className="font-medium">{item.title}</p>
-                  <p className="text-sm text-gray-600">
-                    {item.quantity} x ${item.price.centAmount / 100}
+                  <p className="font-bold text-md">{item.name?.["en-US"]}</p>
+                  <p className="text-sm text-gray-800">
+                    {item.quantity} x $
+                    {(
+                      (item?.price?.discounted?.value?.centAmount ??
+                        item?.price?.value?.centAmount) / 100
+                    ).toFixed(2)}
                   </p>
                 </div>
               </div>
-              <span className="font-bold">
-                ${((item.price.centAmount / 100) * item.quantity).toFixed(2)}
-              </span>
+              {item?.totalPrice?.centAmount && 
+               <span className="font-bold">
+               ${(item.totalPrice.centAmount / 100).toFixed(2)}
+             </span>}
+             
             </div>
           ))}
         </div>
-        <div className="mt-6 flex justify-between font-semibold text-lg">
-          <span>Total</span>
-          <span>${totalPrice.toFixed(2)}</span>
-        </div>
+        {cart?.totalPrice && (
+          <div className="mt-6 flex justify-between font-semibold text-lg">
+            <span>Total</span>
+            <span>${(cart?.totalPrice?.centAmount / 100).toFixed(2)}</span>
+          </div>
+        )}
       </div>
     </div>
   );

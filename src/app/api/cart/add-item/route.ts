@@ -3,13 +3,18 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getOrCreateCart } from '@/lib/utils/getOrCreateCart';
 import { ApiError } from 'next/dist/server/api-utils';
 import { withExceptionFilter } from '@/lib/utils/withExceptionFilter';
+import { getOrRefreshCookie } from '@/lib/utils/getOrRefreshCookie';
+import { v4 as uuidv4 } from 'uuid';
+
 
 async function handler(
     req: NextRequest
 ): Promise<NextResponse> {
+    const cartId = await getOrRefreshCookie('cartId')
+    const anonymousId = await getOrRefreshCookie('anonymousId', uuidv4())
     const { productId, variantId, quantity } = await req.json();
 
-    const cart = await getOrCreateCart();
+    const cart = await getOrCreateCart(anonymousId, cartId);
 
     if (!cart) {
         throw new ApiError(400, 'Unable to create or retrieve cart.');

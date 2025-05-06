@@ -24,6 +24,7 @@ async function handler(): Promise<NextResponse> {
             quantity: item.quantity,
             price: item.price,
             totalPrice: item.totalPrice,
+            image: item.variant?.images?.[0]?.url,
         })),
         currency: cart.totalPrice.currencyCode,
         anonymousId,
