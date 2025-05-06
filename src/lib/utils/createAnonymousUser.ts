@@ -13,7 +13,7 @@ export const createAnonymousUser = async () => {
     scope: `${process.env.CT_SCOPE}:${projectKey}`,
   });
 
-  const res = await fetch(`${authUrl}/oauth/token`, {
+  const res = await fetch(`${authUrl}/oauth/${projectKey}/anonymous/token`, {
     method: "POST",
     headers: {
       Authorization: `Basic ${credentials}`,
@@ -30,5 +30,16 @@ export const createAnonymousUser = async () => {
 
   const data = await res.json();
   console.log("Anonymous user created:", data);
-  return data;
+  const scopes: string[] = data.scope.split(" ");
+  const anonymousScope = scopes.find((scope) =>
+    scope.startsWith("anonymous_id")
+  );
+  if (!anonymousScope) {
+    throw new Error("Anonymous scope not found in the response.");
+  }
+  const anonymousId = anonymousScope.split(":")[1];
+  return {
+    anonymousId,
+    ...data,
+  };
 };
