@@ -77,7 +77,7 @@ export default function CartPage() {
             body: JSON.stringify({
               cart: {
                 cartRef: {
-                  id: "46f3d4bc-2640-48c6-8324-64ebd7fcaaaf",
+                  id: `${cart?.id}`
                 },
               },
               metadata: {
