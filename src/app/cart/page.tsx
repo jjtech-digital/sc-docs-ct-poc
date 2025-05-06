@@ -7,6 +7,12 @@ import { CartItem } from "@/types/types";
 import Cookies from "js-cookie";
 import { checkoutFlow } from "@commercetools/checkout-browser-sdk";
 
+function generateOrderNumber() {
+  const randomPart = Math.random().toString(36).substring(2, 6).toUpperCase();
+  const timestampPart = Date.now().toString(36).slice(-2).toUpperCase();
+  return `ORD-${timestampPart}${randomPart}`;
+}
+
 export default function CartPage() {
   const { cart, removeFromCart, clearCart, updateCartQuantity, isLoading } =
     useCart();
@@ -82,6 +88,7 @@ export default function CartPage() {
               },
               metadata: {
                 applicationKey: "demo-commercetools-checkout-taxes",
+                futureOrderNumber: generateOrderNumber(),
               },
             }),
           }
