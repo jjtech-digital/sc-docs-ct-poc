@@ -3,7 +3,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { getOrCreateCart } from "@/lib/utils/getOrCreateCart";
 import { ApiError } from "next/dist/server/api-utils";
 import { withExceptionFilter } from "@/lib/utils/withExceptionFilter";
-import { getOrRefreshCookie } from "@/lib/utils/getOrRefreshCookie";
 import { getAllCookie } from "@/lib/utils/getAllCookie";
 
 async function handler(req: NextRequest): Promise<NextResponse> {

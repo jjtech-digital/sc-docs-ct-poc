@@ -8,7 +8,7 @@ export async function getOrCreateCart(
 ): Promise<Cart | null> {
   let cart = null;
   try {
-    const guestClient = meClient(anonymousId!);
+    const guestClient = meClient(token);
 
     const cartResponse = await guestClient.me().activeCart().get().execute();
     cart = cartResponse.body;

@@ -1,40 +1,41 @@
-import { apiRoot } from '@/lib/ctClient';
-import { NextRequest, NextResponse } from 'next/server';
-import { ApiError } from 'next/dist/server/api-utils';
-import { getOrRefreshCookie } from '@/lib/utils/getOrRefreshCookie';
-import { getOrCreateCart } from '@/lib/utils/getOrCreateCart';
-import { v4 as uuidv4 } from 'uuid';
-import { withExceptionFilter } from '@/lib/utils/withExceptionFilter';
+import { apiRoot } from "@/lib/ctClient";
+import { NextRequest, NextResponse } from "next/server";
+import { ApiError } from "next/dist/server/api-utils";
+import { getOrRefreshCookie } from "@/lib/utils/getOrRefreshCookie";
+import { getOrCreateCart } from "@/lib/utils/getOrCreateCart";
+
+import { withExceptionFilter } from "@/lib/utils/withExceptionFilter";
+import { getAllCookie } from "@/lib/utils/getAllCookie";
 
 async function handler(req: NextRequest): Promise<NextResponse> {
-    const { lineItemId, quantity } = await req.json();
-    let cartId = await getOrRefreshCookie('cartId');
-    const anonymousId = await getOrRefreshCookie('anonymousId', uuidv4())
+  const { lineItemId, quantity } = await req.json();
+  const cookies = await getAllCookie();
+  const user = JSON.parse(cookies.user);
+  const anonymousId = user.anonymousId;
 
-    const cart = await getOrCreateCart(anonymousId, cartId);
-    if (!cart) {
-        throw new ApiError(400, 'Unable to create or retrieve cart.');
-    }
-    cartId = cart.id;
-    await getOrRefreshCookie('cartId', cart.id);
-    const updatedCart = await apiRoot
-        .carts()
-        .withId({ ID: cartId })
-        .post({
-            body: {
-                version: cart.version,
-                actions: [
-                    {
-                        action: 'changeLineItemQuantity',
-                        lineItemId,
-                        quantity,
-                    },
-                ],
-            },
-        })
-        .execute();
+  const cart = await getOrCreateCart(anonymousId, user.access_token);
+  if (!cart) {
+    throw new ApiError(400, "Unable to create or retrieve cart.");
+  }
+  await getOrRefreshCookie("cartId", cart.id);
+  const updatedCart = await apiRoot
+    .carts()
+    .withId({ ID: cart.id })
+    .post({
+      body: {
+        version: cart.version,
+        actions: [
+          {
+            action: "changeLineItemQuantity",
+            lineItemId,
+            quantity,
+          },
+        ],
+      },
+    })
+    .execute();
 
-    return NextResponse.json({ cart: updatedCart.body });
+  return NextResponse.json({ cart: updatedCart.body });
 }
 
 export const POST = withExceptionFilter(handler);

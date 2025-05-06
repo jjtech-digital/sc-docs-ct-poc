@@ -1,5 +1,5 @@
 "use client";
-import {  useCart } from "@/context/CartContext";
+import { useCart } from "@/context/CartContext";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import Image from "next/image";
@@ -29,7 +29,7 @@ export default function CheckoutPage() {
     };
 
     fetchCart();
-  }, []);
+  }, [getCart]);
 
   const {
     register,
@@ -205,11 +205,11 @@ export default function CheckoutPage() {
                   </p>
                 </div>
               </div>
-              {item?.totalPrice?.centAmount && 
-               <span className="font-bold">
-               ${(item.totalPrice.centAmount / 100).toFixed(2)}
-             </span>}
-             
+              {item?.totalPrice?.centAmount && (
+                <span className="font-bold">
+                  ${(item.totalPrice.centAmount / 100).toFixed(2)}
+                </span>
+              )}
             </div>
           ))}
         </div>
