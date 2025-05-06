@@ -7,7 +7,7 @@ import CartIcon from "@/icons/CartIcon";
 
 const Header = () => {
   const { cart } = useCart();
-  const itemCount = cart.length;
+  const itemCount = cart?.lineItems?.length || 0;
 
   return (
     <div className="flex justify-between items-center h-12 p-4 w-full bg-black text-white">
