@@ -205,9 +205,11 @@ export default function CheckoutPage() {
                   </p>
                 </div>
               </div>
-              <span className="font-bold">
-                ${(item.totalPrice.centAmount / 100).toFixed(2)}
-              </span>
+              {item?.totalPrice?.centAmount && 
+               <span className="font-bold">
+               ${(item.totalPrice.centAmount / 100).toFixed(2)}
+             </span>}
+             
             </div>
           ))}
         </div>
