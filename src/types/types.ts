@@ -84,3 +84,7 @@ export type CartContextType = {
   getCart: () => Promise<Cart>;
   isLoading: boolean;
 };
+
+export type SignupInfo = { email: string; password: string; firstName: string; lastName: string };
+
+export type LoginInfo = { email: string; password: string };
