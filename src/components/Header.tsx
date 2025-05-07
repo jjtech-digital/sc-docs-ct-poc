@@ -15,6 +15,7 @@ const Header = () => {
         <div className="text-lg font-semibold">CT Checkout Demo</div>
       </Link>
 
+      <div className="flex items-center space-x-2">
       <Link href="/cart">
         <div className="relative inline-block">
           <button className="bg-transparent border-0 text-white px-3 py-1 rounded font-medium cursor-pointer ">
@@ -27,6 +28,19 @@ const Header = () => {
           )}
         </div>
       </Link>
+      <Link href="/login">
+        <button className="bg-transparent border-0 text-white px-3 py-1 rounded font-medium cursor-pointer underline">
+          Login
+        </button>
+        </Link>
+        or
+        <Link href="/signup">
+        <button className="bg-transparent border-0 text-white px-3 py-1 rounded font-medium cursor-pointer underline">
+          Signup
+        </button>
+        </Link>
+      </div>
+      
     </div>
   );
 };
