@@ -85,6 +85,6 @@ export type CartContextType = {
   isLoading: boolean;
 };
 
-export type SignupInfo = { email: string; password: string, firstName: string, lastName: string };
+export type SignupInfo = { email: string; password: string; firstName: string; lastName: string };
 
 export type LoginInfo = { email: string; password: string };
