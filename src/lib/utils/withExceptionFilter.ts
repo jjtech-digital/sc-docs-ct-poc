@@ -45,6 +45,7 @@ export function withExceptionFilter(
             return NextResponse.json(
                 {
                     statusCode,
+                    message: "Something went wrong while processing your request.",
                     timestamp: new Date().toISOString(),
                     path: req.nextUrl.pathname,
                 },

@@ -4,16 +4,20 @@ import { getOrCreateCart } from "@/lib/utils/getOrCreateCart";
 import { ApiError } from "next/dist/server/api-utils";
 import { withExceptionFilter } from "@/lib/utils/withExceptionFilter";
 import { getAllCookie } from "@/lib/utils/getAllCookie";
+import { User } from "@/types/types.be";
+import { parseJSON } from "@/lib/utils/helpers";
 
 async function handler(req: NextRequest): Promise<NextResponse> {
   try {
     const cookies = await getAllCookie();
-    const user = JSON.parse(cookies.user);
-    const anonymousId = user.anonymousId;
+    const user = parseJSON(cookies.user, {}) as User;
 
     const { productId, variantId, quantity } = await req.json();
 
-    const cart = await getOrCreateCart(anonymousId, user.access_token);
+    const cart = await getOrCreateCart({
+      anonymousId: user?.anonymousId,
+      customerId: user?.customerId,
+    });
 
     if (!cart) {
       throw new ApiError(400, "Unable to create or retrieve cart.");
