@@ -51,7 +51,6 @@ const LoginPage = () => {
           <input
             type="password"
             placeholder="********"
-            min={8}
             {...register("password", {
               required: "Password is required",
             })}
