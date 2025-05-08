@@ -14,7 +14,6 @@ export async function setCookie(
 ): Promise<void> {
   const cookieStore = cookies();
   (await cookieStore).set(key, value, {
-    httpOnly: true,
     path: "/",
     sameSite: "lax",
     maxAge: SLIDING_EXPIRATION_SECONDS,

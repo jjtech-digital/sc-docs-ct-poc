@@ -66,11 +66,9 @@ export default function CartPage() {
 
   const startCheckoutFlow = async () => {
     const cookie = Cookies.get("user");
-    console.log(cookie);
     if (cookie) {
       try {
         const json = JSON.parse(cookie);
-        console.log(json);
 
         const res = await fetch(
           "https://session.australia-southeast1.gcp.commercetools.com/checkout-dev/sessions",
