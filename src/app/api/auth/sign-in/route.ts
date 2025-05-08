@@ -7,9 +7,9 @@ import { getAllCookie } from "@/lib/utils/getAllCookie";
 import { CustomerSignin } from "@commercetools/platform-sdk";
 import { ApiError } from "next/dist/server/api-utils";
 import { createLoggedInUser } from "@/lib/utils/createLoggedInUser";
-import { getOrRefreshCookie } from "@/lib/utils/getOrRefreshCookie";
 import { User } from "@/types/types.be";
 import { parseJSON } from "@/lib/utils/helpers";
+import { setCookie } from "@/lib/utils/setCookie";
 
 const customerSchema = z.object({
   email: z.string().email("Invalid email format"),
@@ -37,7 +37,7 @@ async function handler(req: NextRequest): Promise<NextResponse> {
 
   let customerSignInData: CustomerSignin;
 
-  if (cart?.id) {
+  if (cart?.id && !cart?.customerId) {
     customerSignInData = {
       email,
       password,
@@ -54,7 +54,7 @@ async function handler(req: NextRequest): Promise<NextResponse> {
 
   if (customer.body.customer.id) {
     const userData = await createLoggedInUser({ email, password });
-    await getOrRefreshCookie("user", JSON.stringify(userData));
+    await setCookie("user", JSON.stringify(userData));
   }
 
   return NextResponse.json({ user: customer.body.customer });
