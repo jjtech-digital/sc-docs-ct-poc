@@ -33,7 +33,6 @@ export const createLoggedInUser = async (userCreds: { email: string; password: s
 
     if (!res.ok) {
         const error = await res.json();
-        console.log(error);
         throw new Error(`Failed to create logged in user token: ${error.error_description || error.message}`);
     }
 
