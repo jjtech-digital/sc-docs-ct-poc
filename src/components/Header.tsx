@@ -7,7 +7,6 @@ import CartIcon from "@/icons/CartIcon";
 import Cookies from "js-cookie";
 import { User } from "@/types/types.be";
 
-// Extended user type that includes potential profile information
 interface UserWithProfile extends User {
   firstName?: string;
   lastName?: string;
@@ -22,13 +21,15 @@ const Header = () => {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   useEffect(() => {
-    // Get user data from cookie
-    const userCookie = Cookies.get("user");
-    if (userCookie) {
+    const userCookies = Cookies.get("user");
+    if (userCookies) {
       try {
-        const parsedUser = JSON.parse(userCookie);
-        setUserData(parsedUser);
-        setIsLoggedIn(true);
+        const parsedUser = JSON.parse(userCookies);
+        if(parsedUser?.customerId) {
+          setIsLoggedIn(true);
+        }
+        setUserData(parsedUser?.customerId);
+       
       } catch (error) {
         console.error("Error parsing user cookie:", error);
       }
@@ -38,8 +39,7 @@ const Header = () => {
   const handleLogout = async () => {
     try {
       setIsLoggingOut(true);
-      
-      // Call the server-side logout API to remove httpOnly cookies
+
       const response = await fetch('/api/auth/logout', {
         method: 'POST',
         headers: {
@@ -51,13 +51,11 @@ const Header = () => {
         throw new Error('Logout failed');
       }
       
-      // Also try to remove cookies on client-side
-      Cookies.remove("user", { path: '/' });
+      Cookies.remove("user");
       
       setIsLoggedIn(false);
       setUserData(null);
       
-      // Refresh the page to ensure all state is reset
       window.location.href = "/";
     } catch (error) {
       console.error("Logout error:", error);
