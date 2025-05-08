@@ -1,13 +1,73 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
 import CartIcon from "@/icons/CartIcon";
+import Cookies from "js-cookie";
+import { User } from "@/types/types.be";
+
+// Extended user type that includes potential profile information
+interface UserWithProfile extends User {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+}
 
 const Header = () => {
   const { cart } = useCart();
   const itemCount = cart?.lineItems?.length || 0;
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userData, setUserData] = useState<UserWithProfile | null>(null);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  useEffect(() => {
+    // Get user data from cookie
+    const userCookie = Cookies.get("user");
+    if (userCookie) {
+      try {
+        const parsedUser = JSON.parse(userCookie);
+        setUserData(parsedUser);
+        setIsLoggedIn(true);
+      } catch (error) {
+        console.error("Error parsing user cookie:", error);
+      }
+    }
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      setIsLoggingOut(true);
+      
+      // Call the server-side logout API to remove httpOnly cookies
+      const response = await fetch('/api/auth/logout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Logout failed');
+      }
+      
+      // Also try to remove cookies on client-side
+      Cookies.remove("user", { path: '/' });
+      
+      setIsLoggedIn(false);
+      setUserData(null);
+      
+      // Refresh the page to ensure all state is reset
+      window.location.href = "/";
+    } catch (error) {
+      console.error("Logout error:", error);
+    } finally {
+      setIsLoggingOut(false);
+    }
+  };
+
+  console.log(isLoggedIn)
+  console.log(userData)
 
   return (
     <div className="flex justify-between items-center h-12 p-4 w-full bg-black text-white">
@@ -16,31 +76,48 @@ const Header = () => {
       </Link>
 
       <div className="flex items-center space-x-2">
-      <Link href="/cart">
-        <div className="relative inline-block">
-          <button className="bg-transparent border-0 text-white px-3 py-1 rounded font-medium cursor-pointer ">
-            <CartIcon />
-          </button>
-          {itemCount > 0 && (
-            <span className="absolute top-0 right-1 bg-red-600 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
-              {itemCount}
+        <Link href="/cart">
+          <div className="relative inline-block">
+            <button className="bg-transparent border-0 text-white px-3 py-1 rounded font-medium cursor-pointer ">
+              <CartIcon />
+            </button>
+            {itemCount > 0 && (
+              <span className="absolute top-0 right-1 bg-red-600 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
+                {itemCount}
+              </span>
+            )}
+          </div>
+        </Link>
+        
+        {isLoggedIn ? (
+          <div className="flex items-center space-x-2">
+            <span className="text-sm">
+              Hi, {userData?.firstName || userData?.email?.split('@')[0] || 'User'}
             </span>
-          )}
-        </div>
-      </Link>
-      <Link href="/login">
-        <button className="bg-transparent border-0 text-white px-3 py-1 rounded font-medium cursor-pointer underline">
-          Login
-        </button>
-        </Link>
-        or
-        <Link href="/signup">
-        <button className="bg-transparent border-0 text-white px-3 py-1 rounded font-medium cursor-pointer underline">
-          Signup
-        </button>
-        </Link>
+            <button 
+              onClick={handleLogout}
+              disabled={isLoggingOut}
+              className="bg-transparent border-0 text-white px-3 py-1 rounded font-medium cursor-pointer underline"
+            >
+              {isLoggingOut ? "Logging out..." : "Logout"}
+            </button>
+          </div>
+        ) : (
+          <div className="flex items-center space-x-2">
+            <Link href="/login">
+              <button className="bg-transparent border-0 text-white px-3 py-1 rounded font-medium cursor-pointer underline">
+                Login
+              </button>
+            </Link>
+            <span>or</span>
+            <Link href="/signup">
+              <button className="bg-transparent border-0 text-white px-3 py-1 rounded font-medium cursor-pointer underline">
+                Signup
+              </button>
+            </Link>
+          </div>
+        )}
       </div>
-      
     </div>
   );
 };
