@@ -32,16 +32,15 @@ const LoginPage = () => {
         },
         body: JSON.stringify(data),
       });
-
       if (!res.ok) {
         const errorData = await res.json();
         throw new Error(errorData.message || "Failed to login");
       }
-
+      
       return res.json();
     },
-    onSuccess: () => {
-
+    onSuccess: (data) => {
+      localStorage.setItem("user", JSON.stringify(data?.user));
       window.location.href = "/";
       router.push("/");
     },
@@ -107,7 +106,7 @@ const LoginPage = () => {
       </form>
       <div className="mt-4 text-sm">
         Dont have an account yet?{" "}
-        <a href="/signup" className="text-blue-600 hover:underline">
+        <a href="/signup" className="text-blue-600 underline">
           Sign up here
         </a>
       </div>

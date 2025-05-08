@@ -5,31 +5,28 @@ import Link from "next/link";
 import { useCart } from "@/context/CartContext";
 import CartIcon from "@/icons/CartIcon";
 import Cookies from "js-cookie";
-import { User } from "@/types/types.be";
-
-interface UserWithProfile extends User {
-  firstName?: string;
-  lastName?: string;
-  email?: string;
-}
+import UserIcon from "@/icons/UserIcon";
+import LoginIcon from "@/icons/LoginIcon";
+import SignupIcon from "@/icons/SignupIcon";
 
 const Header = () => {
   const { cart } = useCart();
   const itemCount = cart?.lineItems?.length || 0;
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userData, setUserData] = useState<UserWithProfile | null>(null);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  const userDataFromLS =
+    typeof window !== "undefined" ? localStorage.getItem("user") : null;
+  const parsedUserData = userDataFromLS ? JSON.parse(userDataFromLS) : null;
 
   useEffect(() => {
     const userCookies = Cookies.get("user");
     if (userCookies) {
       try {
         const parsedUser = JSON.parse(userCookies);
-        if(parsedUser?.customerId) {
+        if (parsedUser?.customerId) {
           setIsLoggedIn(true);
         }
-        setUserData(parsedUser?.customerId);
-       
       } catch (error) {
         console.error("Error parsing user cookie:", error);
       }
@@ -40,22 +37,21 @@ const Header = () => {
     try {
       setIsLoggingOut(true);
 
-      const response = await fetch('/api/auth/logout', {
-        method: 'POST',
+      const response = await fetch("/api/auth/logout", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
       });
 
       if (!response.ok) {
-        throw new Error('Logout failed');
+        throw new Error("Logout failed");
       }
-      
+
       Cookies.remove("user");
-      
+      localStorage.removeItem("user");
       setIsLoggedIn(false);
-      setUserData(null);
-      
+
       window.location.href = "/";
     } catch (error) {
       console.error("Logout error:", error);
@@ -63,9 +59,6 @@ const Header = () => {
       setIsLoggingOut(false);
     }
   };
-
-  console.log(isLoggedIn)
-  console.log(userData)
 
   return (
     <div className="flex justify-between items-center h-12 p-4 w-full bg-black text-white">
@@ -86,35 +79,55 @@ const Header = () => {
             )}
           </div>
         </Link>
-        
-        {isLoggedIn ? (
-          <div className="flex items-center space-x-2">
-            <span className="text-sm">
-              Hi, {userData?.firstName || userData?.email?.split('@')[0] || 'User'}
-            </span>
-            <button 
-              onClick={handleLogout}
-              disabled={isLoggingOut}
-              className="bg-transparent border-0 text-white px-3 py-1 rounded font-medium cursor-pointer underline"
+        <div
+          className="relative"
+          onMouseEnter={() => setShowUserMenu(true)}
+          onClick={() => setShowUserMenu(!showUserMenu)}
+        >
+          <button className="bg-transparent border-0 text-white px-3 py-1 rounded font-medium cursor-pointer">
+            <UserIcon />
+          </button>
+
+          {showUserMenu && (
+            <div
+              className="absolute w-[150px] h-auto bg-white top-10 right-0 rounded-lg shadow-lg text-black py-2 z-10"
+              onMouseLeave={() => setShowUserMenu(false)}
             >
-              {isLoggingOut ? "Logging out..." : "Logout"}
-            </button>
-          </div>
-        ) : (
-          <div className="flex items-center space-x-2">
-            <Link href="/login">
-              <button className="bg-transparent border-0 text-white px-3 py-1 rounded font-medium cursor-pointer underline">
-                Login
-              </button>
-            </Link>
-            <span>or</span>
-            <Link href="/signup">
-              <button className="bg-transparent border-0 text-white px-3 py-1 rounded font-medium cursor-pointer underline">
-                Signup
-              </button>
-            </Link>
-          </div>
-        )}
+              {isLoggedIn ? (
+                <>
+                  <div className="px-4 py-2 border-b border-gray-200">
+                    <span className="text-sm font-medium">
+                      Hi {parsedUserData?.firstName || "User"} 👋
+                    </span>
+                  </div>
+                  <button
+                    onClick={handleLogout}
+                    disabled={isLoggingOut}
+                    className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 cursor-pointer"
+                  >
+                    Logout
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link href="/login">
+                    <div className="px-4 py-2 text-sm hover:bg-gray-100 cursor-pointer flex gap-2 items-center border-b border-gray-200">
+                      <LoginIcon />
+                      <span>Login</span>
+                    </div>
+                  </Link>
+
+                  <Link href="/signup">
+                    <div className="px-4 py-2 text-sm hover:bg-gray-100 cursor-pointer flex gap-2 items-center">
+                      <SignupIcon />
+                      <span>Signup</span>
+                    </div>
+                  </Link>
+                </>
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
