@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 
-const SLIDING_EXPIRATION_SECONDS = 60 * 60 * 24 * 30;
+const SLIDING_EXPIRATION_SECONDS = 60 * 60 * 24 * 20;
 
 export async function getOrRefreshCookie(
   key: string,

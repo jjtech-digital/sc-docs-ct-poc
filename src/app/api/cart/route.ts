@@ -4,12 +4,17 @@ import { ApiError } from "next/dist/server/api-utils";
 import { getOrCreateCart } from "@/lib/utils/getOrCreateCart";
 import { withExceptionFilter } from "@/lib/utils/withExceptionFilter";
 import { getAllCookie } from "@/lib/utils/getAllCookie";
+import { parseJSON } from "@/lib/utils/helpers";
+import { User } from "@/types/types.be";
 
 async function handler(): Promise<NextResponse> {
   const cookies = await getAllCookie();
-  const user = JSON.parse(cookies.user);
+  const user = parseJSON(cookies.user, {}) as User;
 
-  const cart = await getOrCreateCart(user.anonymousId, user.access_token);
+  const cart = await getOrCreateCart({
+    anonymousId: user?.anonymousId,
+    customerId: user?.customerId,
+  });
 
   if (!cart) {
     throw new ApiError(400, "Cart not found.");

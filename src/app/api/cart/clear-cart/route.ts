@@ -1,25 +1,24 @@
 import { NextResponse } from "next/server";
 import { apiRoot } from "@/lib/ctClient";
 import { ApiError } from "next/dist/server/api-utils";
-import { getOrRefreshCookie } from "@/lib/utils/getOrRefreshCookie";
 import { getOrCreateCart } from "@/lib/utils/getOrCreateCart";
-
 import { withExceptionFilter } from "@/lib/utils/withExceptionFilter";
 import { CartUpdateAction } from "@commercetools/platform-sdk";
 import { getAllCookie } from "@/lib/utils/getAllCookie";
+import { User } from "@/types/types.be";
+import { parseJSON } from "@/lib/utils/helpers";
 
 async function handler(): Promise<NextResponse> {
-  let cartId = await getOrRefreshCookie("cartId");
   const cookies = await getAllCookie();
-  const user = JSON.parse(cookies.user);
-  const anonymousId = user.anonymousId;
+  const user = parseJSON(cookies.user, {}) as User;
+  const cart = await getOrCreateCart({
+    anonymousId: user?.anonymousId,
+    customerId: user?.customerId,
+  });
 
-  const cart = await getOrCreateCart(anonymousId, user.access_token);
   if (!cart) {
     throw new ApiError(400, "Unable to create or retrieve cart.");
   }
-  cartId = cart.id;
-  await getOrRefreshCookie("cartId", cart.id);
 
   const clearCartActions: CartUpdateAction[] = cart.lineItems.map(
     (lineItem) => ({
@@ -34,7 +33,7 @@ async function handler(): Promise<NextResponse> {
 
   const updatedCart = await apiRoot
     .carts()
-    .withId({ ID: cartId })
+    .withId({ ID: cart.id })
     .post({
       body: {
         version: cart.version,

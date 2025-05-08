@@ -1,23 +1,30 @@
 import { apiRoot } from "@/lib/ctClient";
 import { NextRequest, NextResponse } from "next/server";
 import { ApiError } from "next/dist/server/api-utils";
-import { getOrRefreshCookie } from "@/lib/utils/getOrRefreshCookie";
 import { getOrCreateCart } from "@/lib/utils/getOrCreateCart";
 
 import { withExceptionFilter } from "@/lib/utils/withExceptionFilter";
 import { getAllCookie } from "@/lib/utils/getAllCookie";
+import { User } from "@/types/types.be";
+import { parseJSON } from "@/lib/utils/helpers";
 
 async function handler(req: NextRequest): Promise<NextResponse> {
   const { lineItemId, quantity } = await req.json();
+  if (!lineItemId || quantity === undefined) {
+    throw new ApiError(400, "lineItemId and quantity are required");
+  }
   const cookies = await getAllCookie();
-  const user = JSON.parse(cookies.user);
-  const anonymousId = user.anonymousId;
+  const user = parseJSON(cookies.user, {}) as User;
 
-  const cart = await getOrCreateCart(anonymousId, user.access_token);
+  const cart = await getOrCreateCart({
+    anonymousId: user?.anonymousId,
+    customerId: user?.customerId,
+  });
+
   if (!cart) {
     throw new ApiError(400, "Unable to create or retrieve cart.");
   }
-  await getOrRefreshCookie("cartId", cart.id);
+
   const updatedCart = await apiRoot
     .carts()
     .withId({ ID: cart.id })
