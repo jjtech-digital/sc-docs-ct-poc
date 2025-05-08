@@ -6,10 +6,8 @@ import { useForm } from "react-hook-form";
 import { SignupInfo } from "@/types/types";
 import { SignupSchema } from "@/lib/utils/schemas";
 import { useMutation } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
 
 const SignupPage = () => {
-  const router = useRouter();
 
   const {
     register,
@@ -42,9 +40,9 @@ const SignupPage = () => {
 
       return res.json();
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      localStorage.setItem("user", JSON.stringify(data?.user));
       window.location.href = "/";
-      router.push("/");
     },
   });
 

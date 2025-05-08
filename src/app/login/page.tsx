@@ -5,11 +5,9 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { LoginInfo } from "@/types/types";
 import { LoginSchema } from "@/lib/utils/schemas";
-import { useRouter } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
 
 const LoginPage = () => {
-  const router = useRouter();
 
   const {
     register,
@@ -42,7 +40,6 @@ const LoginPage = () => {
     onSuccess: (data) => {
       localStorage.setItem("user", JSON.stringify(data?.user));
       window.location.href = "/";
-      router.push("/");
     },
   });
 
@@ -105,7 +102,7 @@ const LoginPage = () => {
         </button>
       </form>
       <div className="mt-4 text-sm">
-        Dont have an account yet?{" "}
+        {"Don't have an account yet?"}{" "}
         <a href="/signup" className="text-blue-600 underline">
           Sign up here
         </a>
