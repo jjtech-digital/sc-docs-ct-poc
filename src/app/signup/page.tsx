@@ -43,7 +43,7 @@ const SignupPage = () => {
       return res.json();
     },
     onSuccess: () => {
-      // Redirect to products page after successful signup
+      window.location.href = "/";
       router.push("/");
     },
   });

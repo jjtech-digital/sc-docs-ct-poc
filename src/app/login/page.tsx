@@ -41,7 +41,8 @@ const LoginPage = () => {
       return res.json();
     },
     onSuccess: () => {
-      // Redirect to products page after successful login
+
+      window.location.href = "/";
       router.push("/");
     },
   });
