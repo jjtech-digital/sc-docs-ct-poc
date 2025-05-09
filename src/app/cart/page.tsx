@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 import { CartItem } from "@/types/types";
 import Cookies from "js-cookie";
 import { checkoutFlow } from "@commercetools/checkout-browser-sdk";
+import {useRouter} from "next/navigation";
 
 function generateOrderNumber() {
   const randomPart = Math.random().toString(36).substring(2, 6).toUpperCase();
@@ -16,6 +17,8 @@ function generateOrderNumber() {
 export default function CartPage() {
   const { cart, removeFromCart, clearCart, updateCartQuantity, isLoading } =
     useCart();
+
+    const router = useRouter();
 
   const [quantities, setQuantities] = useState<{ [key: string]: number }>({});
 
@@ -104,7 +107,6 @@ export default function CartPage() {
           logError: true,
 
           onInfo: (message) => {
-            console.log("Info message:", message);
             if (message.code === 'checkout_completed') {
               const {
                   order: { id },
