@@ -111,7 +111,7 @@ export default function CartPage() {
                 } = message.payload as {
                   order: { id: string };
                 };
-              window.location.href = `/thankyou?orderId=${id}`;
+              router.push(`/thankyou?orderId=${id}`);
             }
           },
           
