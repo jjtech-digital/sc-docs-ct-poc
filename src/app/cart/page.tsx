@@ -113,7 +113,7 @@ export default function CartPage() {
                 } = message.payload as {
                   order: { id: string };
                 };
-              router.push(`/thankyou?orderId=${id}`);
+              router.push(`/order-confirmation?orderId=${id}`);
             }
           },
           

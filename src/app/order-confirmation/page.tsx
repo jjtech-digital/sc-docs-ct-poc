@@ -6,7 +6,7 @@ import { useSearchParams } from 'next/navigation';
 import TickMarkCircleIcon from '@/icons/TickMarkCircleIcon';
 import BackArrowIcon from '@/icons/BackArrowIcon';
 
-const ThankYou = () => {
+const OrderConfirmation = () => {
   const searchParams = useSearchParams();
   const orderId = searchParams.get('orderId');
 
@@ -45,4 +45,4 @@ const ThankYou = () => {
   );
 };
 
-export default ThankYou;
+export default OrderConfirmation;
