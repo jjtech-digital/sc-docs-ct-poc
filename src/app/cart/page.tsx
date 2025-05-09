@@ -102,6 +102,19 @@ export default function CartPage() {
           logInfo: true,
           logWarn: true,
           logError: true,
+
+          onInfo: (message) => {
+            console.log("Info message:", message);
+            if (message.code === 'checkout_completed') {
+              const {
+                  order: { id },
+                } = message.payload as {
+                  order: { id: string };
+                };
+              window.location.href = `/thankyou?orderId=${id}`;
+            }
+          },
+          
         });
       } catch (e) {
         console.error("Failed to parse cookie:", e);
