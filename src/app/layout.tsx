@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import { CartProvider } from "@/context/CartContext";
 import { ToastContainer } from "react-toastify";
 import QueryClientProviderWrapper from "./QueryClientProviderWrapper";
+import TawkScript from "@/scripts/TawkScript";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -42,6 +43,7 @@ export default function RootLayout({
             </div>
           </CartProvider>
         </QueryClientProviderWrapper>
+        <TawkScript />
       </body>
     </html>
   );

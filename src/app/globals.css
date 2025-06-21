@@ -3,3 +3,45 @@
 body {
   font-family: Arial, Helvetica, sans-serif;
 }
+
+iframe[title="chat widget"]:not([class*="open"]):not([class*="close"]) {
+  position: fixed !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  z-index: 10000 !important;
+  width: 400px !important;
+  height: 50px !important;
+  border: 1px solid #ccc !important;
+  border-radius: 25px !important;
+  background-color: #ffffff !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+  transition: all 0.3s ease !important;
+}
+
+iframe[title="chat widget"][class*="open"], iframe[title="chat widget"][class*="close"] {
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  z-index: 10000 !important;
+  width: 600px !important;
+  height: 500px !important;
+  border: 1px solid #ccc !important;
+  border-radius: 10px !important;
+  background-color: #ffffff !important;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2) !important;
+  transition: all 0.3s ease !important;
+}
+
+@media (max-width: 768px) {
+  iframe[title="chat widget"]:not([class*="open"]):not([class*="close"]) {
+    width: 90% !important;
+    max-width: 350px !important;
+    height: 50px !important;
+  }
+  iframe[title="chat widget"][class*="open"], iframe[title="chat widget"][class*="close"] {
+    width: 90% !important;
+    max-width: 400px !important;
+    height: 400px !important;
+  }
+}
