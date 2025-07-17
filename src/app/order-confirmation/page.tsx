@@ -1,10 +1,14 @@
-import { Suspense } from 'react';
-import OrderConfirmationClient from './OrderConfirmationClient';
+"use client";
 
-export default function OrderConfirmationPage() {
+import React, { Suspense } from "react";
+import OrderConfirmationClient from "./order-confirmation";
+
+const OrderConfirmation = () => {
   return (
-    <Suspense fallback={<div>Loading order confirmation...</div>}>
+    <Suspense fallback={<div>Loading...</div>}>
       <OrderConfirmationClient />
     </Suspense>
   );
-}
+};
+
+export default OrderConfirmation;
