@@ -6,7 +6,7 @@ import { useState, useEffect } from "react";
 import { CartItem } from "@/types/types";
 import Cookies from "js-cookie";
 import { checkoutFlow } from "@commercetools/checkout-browser-sdk";
-import {useRouter} from "next/navigation";
+import { useRouter } from "next/navigation";
 
 function generateOrderNumber() {
   const randomPart = Math.random().toString(36).substring(2, 6).toUpperCase();
@@ -18,7 +18,7 @@ export default function CartPage() {
   const { cart, removeFromCart, clearCart, updateCartQuantity, isLoading } =
     useCart();
 
-    const router = useRouter();
+  const router = useRouter();
 
   const [quantities, setQuantities] = useState<{ [key: string]: number }>({});
 
@@ -74,7 +74,7 @@ export default function CartPage() {
         const json = JSON.parse(cookie);
 
         const res = await fetch(
-          "https://session.australia-southeast1.gcp.commercetools.com/checkout-dev/sessions",
+          "https://session.australia-southeast1.gcp.commercetools.com/sc-docs-poc/sessions",
           {
             method: "POST",
             headers: {
@@ -100,23 +100,22 @@ export default function CartPage() {
 
         checkoutFlow({
           sessionId: data.id,
-          projectKey: "checkout-dev",
+          projectKey: "sc-docs-poc",
           region: "australia-southeast1.gcp",
           logInfo: true,
           logWarn: true,
           logError: true,
 
           onInfo: (message) => {
-            if (message.code === 'checkout_completed') {
+            if (message.code === "checkout_completed") {
               const {
-                  order: { id },
-                } = message.payload as {
-                  order: { id: string };
-                };
+                order: { id },
+              } = message.payload as {
+                order: { id: string };
+              };
               router.push(`/order-confirmation?orderId=${id}`);
             }
           },
-          
         });
       } catch (e) {
         console.error("Failed to parse cookie:", e);

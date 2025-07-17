@@ -42,5 +42,3 @@ export const ctpClient = new ClientBuilder()
 export const apiRoot = createApiBuilderFromCtpClient(ctpClient).withProjectKey({
   projectKey,
 });
-
-
