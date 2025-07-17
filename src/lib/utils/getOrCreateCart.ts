@@ -33,8 +33,8 @@ export async function getOrCreateCart({
     try {
       const createResponse = await apiRoot.carts().post({
         body: {
-          currency: "USD",
-          country: "US",
+          currency: "AUD",
+          country: "AU",
           customerId,
         },
       }).execute();
@@ -63,8 +63,8 @@ export async function getOrCreateCart({
     try {
       const createResponse = await apiRoot.carts().post({
         body: {
-          currency: "USD",
-          country: "US",
+          currency: "AUD",
+          country: "AU",
           anonymousId,
         },
       }).execute();
