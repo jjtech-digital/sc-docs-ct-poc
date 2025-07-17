@@ -1,4 +1,4 @@
-import React from 'react'
+import React from "react";
 import Script from "next/script";
 
 const TawkScript = () => {
@@ -24,17 +24,18 @@ const TawkScript = () => {
 
                 const iframe = chatContainer.querySelectorAll('iframe')[0];
                 if (!iframe) return;
-
-                const styles = {
-                    position: 'fixed',
-                    top: '10',
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    'z-index': '9999'
-                };
+  const styles = {
+        position: 'fixed',
+        bottom: '20px',
+        right: '20px',
+        'z-index': '9999',
+        top: 'auto',
+        left: 'auto',
+        transform: 'none'
+    };
 
                 for (const [property, value] of Object.entries(styles)) {
-                    iframe.style.setProperty(property, value);
+                    iframe.style.setProperty(property, value,'important');
                 }
             }
 
@@ -90,7 +91,7 @@ const TawkScript = () => {
             };
             `}
         </Script>
-    )
-}
+    );
+};
 
-export default TawkScript
+export default TawkScript;
