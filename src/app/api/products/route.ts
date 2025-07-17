@@ -4,48 +4,40 @@ import { getLocaleFromRequest } from "@/lib/utils/getLocaleFromRequest";
 import { withExceptionFilter } from "@/lib/utils/withExceptionFilter";
 
 async function handler(req: NextRequest): Promise<NextResponse> {
-  try {
-    const { searchParams } = new URL(req.url);
+  const { searchParams } = new URL(req.url);
 
-    const limit = parseInt(searchParams.get("limit") || "10", 10);
-    const offset = parseInt(searchParams.get("offset") || "0", 10);
-    const locale = getLocaleFromRequest(req);
+  const limit = parseInt(searchParams.get("limit") || "10", 10);
+  const offset = parseInt(searchParams.get("offset") || "0", 10);
+  const locale = getLocaleFromRequest(req);
 
-    const result = await apiRoot
-      .productProjections()
-      .get({
-        queryArgs: {
-          limit,
-          offset,
-          localeProjection: locale,
-        },
-      })
-      .execute();
+  const result = await apiRoot
+    .productProjections()
+    .get({
+      queryArgs: {
+        limit,
+        offset,
+        localeProjection: locale,
+      },
+    })
+    .execute();
 
-    const products = result.body.results.map((product) => ({
-      id: product.id,
-      key: product.key,
-      name: product.name,
-      slug: product.slug,
-      description: product.description,
-      image: product.masterVariant.images?.[0]?.url || null,
-      price: product.masterVariant.prices?.[0]?.value,
-    }));
+  const products = result.body.results.map((product) => ({
+    id: product.id,
+    key: product.key,
+    name: product.name,
+    slug: product.slug,
+    description: product.description,
+    image: product.masterVariant.images?.[0]?.url || null,
+    price: product.masterVariant.prices?.[0]?.value,
+  }));
 
-    return NextResponse.json({
-      total: result.body.total,
-      count: result.body.count,
-      offset: result.body.offset,
-      limit,
-      products,
-    });
-  } catch (error: any) {
-    console.log("Error fetching products:", error.error);
-    return NextResponse.json(
-      { error: "Failed to fetch products" },
-      { status: 500 }
-    );
-  }
+  return NextResponse.json({
+    total: result.body.total,
+    count: result.body.count,
+    offset: result.body.offset,
+    limit,
+    products,
+  });
 }
 
 export const GET = withExceptionFilter(handler);
