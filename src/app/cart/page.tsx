@@ -100,7 +100,7 @@ export default function CartPage() {
 
         checkoutFlow({
           sessionId: data.id,
-          projectKey: "checkout-dev",
+          projectKey: "sc-docs-poc",
           region: "australia-southeast1.gcp",
           logInfo: true,
           logWarn: true,
