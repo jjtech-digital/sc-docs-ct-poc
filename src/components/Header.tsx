@@ -64,7 +64,9 @@ const Header = () => {
   return (
     <div className="flex justify-between items-center h-12 p-4 w-full bg-[#7795fe] text-white">
       <Link href="/">
-        <div className="text-sm md:text-lg font-semibold white-nowrap">CT Checkout Demo</div>
+        <div className="text-sm md:text-lg font-semibold white-nowrap">
+          CT Checkout Demo
+        </div>
       </Link>
       <div className="w-full max-w-md">
         <QuickSearch />

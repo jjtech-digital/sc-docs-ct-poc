@@ -31,13 +31,16 @@ export async function getOrCreateCart({
 
   if (customerId && !cart && createCart) {
     try {
-      const createResponse = await apiRoot.carts().post({
-        body: {
-          currency: "AUD",
-          country: "AU",
-          customerId,
-        },
-      }).execute();
+      const createResponse = await apiRoot
+        .carts()
+        .post({
+          body: {
+            currency: "AUD",
+            country: "AU",
+            customerId,
+          },
+        })
+        .execute();
       cart = createResponse.body;
     } catch (error) {
       console.error("Failed to create cart for customerId:", error);
@@ -46,13 +49,16 @@ export async function getOrCreateCart({
 
   if (!cart && anonymousId) {
     try {
-      const queryResponse = await apiRoot.carts().get({
-        queryArgs: {
-          where: `anonymousId="${anonymousId}"`,
-          sort: "lastModifiedAt desc",
-          limit: 1,
-        },
-      }).execute();
+      const queryResponse = await apiRoot
+        .carts()
+        .get({
+          queryArgs: {
+            where: `anonymousId="${anonymousId}"`,
+            sort: "lastModifiedAt desc",
+            limit: 1,
+          },
+        })
+        .execute();
       cart = queryResponse.body.results[0] || null;
     } catch (error) {
       console.error("Failed to retrieve cart by anonymousId:", error);
@@ -61,13 +67,16 @@ export async function getOrCreateCart({
 
   if (!cart && anonymousId && createCart) {
     try {
-      const createResponse = await apiRoot.carts().post({
-        body: {
-          currency: "AUD",
-          country: "AU",
-          anonymousId,
-        },
-      }).execute();
+      const createResponse = await apiRoot
+        .carts()
+        .post({
+          body: {
+            currency: "AUD",
+            country: "AU",
+            anonymousId,
+          },
+        })
+        .execute();
       cart = createResponse.body;
     } catch (error) {
       console.error("Failed to create cart for anonymousId:", error);

@@ -1,7 +1,6 @@
-'use client';
+"use client";
 
-import { algoliasearch } from 'algoliasearch'; 
-
+import { algoliasearch } from "algoliasearch";
 
 const searchClient = algoliasearch(
   process.env.NEXT_PUBLIC_ALGOLIA_APP_ID!,

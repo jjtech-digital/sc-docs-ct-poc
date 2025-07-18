@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   InstantSearch,
@@ -7,10 +7,10 @@ import {
   RefinementList,
   SortBy,
   connectHits,
-} from 'react-instantsearch-dom';
-import searchClient from '@/lib/algoliaClient';
+} from "react-instantsearch-dom";
+import searchClient from "@/lib/algoliaClient";
 
-const locale = 'en-GB';
+const locale = "en-GB";
 
 // Types
 interface HitProps {
@@ -24,8 +24,8 @@ interface HitProps {
 }
 
 const Hit = ({ hit }: HitProps) => {
-  const productName = hit.name?.[locale] || 'Unnamed product';
-  const productImage = hit.variants?.[0]?.images?.[0] || '/placeholder.png';
+  const productName = hit.name?.[locale] || "Unnamed product";
+  const productImage = hit.variants?.[0]?.images?.[0] || "/placeholder.png";
   const productPrice = (hit.price && hit.price / 100) || 0;
 
   return (
@@ -35,14 +35,15 @@ const Hit = ({ hit }: HitProps) => {
         alt={productName}
         className="mb-3 w-full h-48 object-cover rounded"
       />
-      <h3 className="text-sm font-semibold text-gray-900 truncate">{productName}</h3>
+      <h3 className="text-sm font-semibold text-gray-900 truncate">
+        {productName}
+      </h3>
       <p className="text-primary text-base font-bold mt-1">
         ${productPrice.toFixed(2)}
       </p>
     </div>
   );
 };
-
 
 // ✅ CustomHits Component wrapped with `connectHits`
 const CustomHits = connectHits(({ hits }: { hits: HitData[] }) => (
@@ -72,15 +73,21 @@ const ProductListingPage = () => {
         <main className="lg:w-3/4 w-full space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <SearchBox
-              translations={{ placeholder: 'Search for products…' }}
+              translations={{ placeholder: "Search for products…" }}
               className="w-full sm:w-1/2"
             />
             <SortBy
               defaultRefinement="dev_Products"
               items={[
-                { value: 'dev_Products', label: 'Featured' },
-                { value: 'dev_Products_price_asc', label: 'Price: Low to High' },
-                { value: 'dev_Products_price_desc', label: 'Price: High to Low' },
+                { value: "dev_Products", label: "Featured" },
+                {
+                  value: "dev_Products_price_asc",
+                  label: "Price: Low to High",
+                },
+                {
+                  value: "dev_Products_price_desc",
+                  label: "Price: High to Low",
+                },
               ]}
               className="w-full sm:w-1/2"
             />
