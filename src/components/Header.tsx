@@ -8,6 +8,7 @@ import Cookies from "js-cookie";
 import UserIcon from "@/icons/UserIcon";
 import LoginIcon from "@/icons/LoginIcon";
 import SignupIcon from "@/icons/SignupIcon";
+import QuickSearch from "./QuickSearch";
 
 const Header = () => {
   const { cart } = useCart();
@@ -61,11 +62,13 @@ const Header = () => {
   };
 
   return (
-    <div className="flex justify-between items-center h-12 p-4 w-full bg-black text-white">
+    <div className="flex justify-between items-center h-12 p-4 w-full bg-[#7795fe] text-white">
       <Link href="/">
-        <div className="text-lg font-semibold">CT Checkout Demo</div>
+        <div className="text-sm md:text-lg font-semibold white-nowrap">CT Checkout Demo</div>
       </Link>
-
+      <div className="w-full max-w-md">
+        <QuickSearch />
+      </div>
       <div className="flex items-center space-x-2">
         <Link href="/cart">
           <div className="relative inline-block">

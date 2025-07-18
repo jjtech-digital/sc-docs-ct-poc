@@ -3,3 +3,8 @@
 body {
   font-family: Arial, Helvetica, sans-serif;
 }
+
+.ais-Pagination-list {
+  display: flex;
+  gap: 1rem;
+}
