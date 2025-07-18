@@ -22,16 +22,16 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
           },
           cache: "no-store"
         });
-        
+
         if (!res.ok) {
           throw new Error("Failed to fetch cart");
         }
-        
+
         const cartData = await res.json();
         if (!cartData) {
           return emptyCart;
         }
-        
+
         return cartData?.cart || emptyCart;
       } catch (error) {
         console.error("Error fetching cart:", error);
@@ -57,13 +57,23 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
           productId: id,
           variantId: 1,
           quantity: 1,
+          shippingAddress: {
+            firstName: 'a',
+            lastName: 's',
+            streetName: '11 Serena Street',
+            postalCode: '6210',
+            city: 'Falcon',
+            state: 'WA',
+            country: 'AU',
+            email: 'ankush@compose.co.in',
+          },
         }),
       });
 
       if (!res.ok) {
         throw new Error("Failed to add item to cart");
       }
-      
+
       return res.json();
     },
     onSuccess: (data) => {
@@ -93,7 +103,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       if (!res.ok) {
         throw new Error("Failed to remove item from cart");
       }
-      
+
       return res.json();
     },
     onSuccess: (data) => {
@@ -113,7 +123,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       if (quantity < 1) {
         return removeFromCartMutation.mutateAsync(id);
       }
-      
+
       const res = await fetch("/api/cart/update-item", {
         method: "POST",
         headers: {
@@ -128,7 +138,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       if (!res.ok) {
         throw new Error("Failed to update item quantity");
       }
-      
+
       return res.json();
     },
     onSuccess: (data) => {
@@ -155,7 +165,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       if (!res.ok) {
         throw new Error("Failed to clear cart");
       }
-      
+
       return res.json();
     },
     onSuccess: (data) => {
@@ -174,7 +184,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
   const addToCart = (id: string) => addToCartMutation.mutate(id);
   const removeFromCart = (id: string) => removeFromCartMutation.mutate(id);
-  const updateCartQuantity = (id: string, quantity: number) => 
+  const updateCartQuantity = (id: string, quantity: number) =>
     updateCartQuantityMutation.mutate({ id, quantity });
   const clearCart = () => clearCartMutation.mutate();
 

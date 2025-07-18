@@ -12,7 +12,7 @@ async function handler(req: NextRequest): Promise<NextResponse> {
     const cookies = await getAllCookie();
     const user = parseJSON(cookies.user, {}) as User;
 
-    const { productId, variantId, quantity } = await req.json();
+    const { productId, variantId, quantity, shippingAddress } = await req.json();
 
     const cart = await getOrCreateCart({
       anonymousId: user?.anonymousId,
@@ -35,6 +35,7 @@ async function handler(req: NextRequest): Promise<NextResponse> {
               productId,
               variantId,
               quantity,
+              shippingAddress
             },
           ],
         },

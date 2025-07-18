@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useState, useEffect } from "react";
 import { CartItem } from "@/types/types";
 import Cookies from "js-cookie";
-import { checkoutFlow } from "@commercetools/checkout-browser-sdk";
+import { paymentFlow } from "@commercetools/checkout-browser-sdk";
 import { useRouter } from "next/navigation";
 
 function generateOrderNumber() {
@@ -98,25 +98,23 @@ export default function CartPage() {
         const data = await res.json();
         console.log("Checkout session created:", data);
 
-        checkoutFlow({
-          sessionId: data.id,
-          projectKey: "sc-docs-poc",
-          region: "australia-southeast1.gcp",
-          logInfo: true,
-          logWarn: true,
-          logError: true,
+      paymentFlow({
+            sessionId: data.id, // ← id returned by step 1
+            projectKey: 'sc-docs-poc',
+            region: 'australia-southeast1.gcp',
 
-          onInfo: (message) => {
-            if (message.code === "checkout_completed") {
-              const {
-                order: { id },
-              } = message.payload as {
-                order: { id: string };
-              };
-              router.push(`/order-confirmation?orderId=${id}`);
-            }
-          },
-        });
+            /* address/ shipping settings are ignored in payment-only mode */
+
+            logInfo: true,
+            onInfo: ({ code, payload }) => {
+              if (code === 'checkout_completed') {
+                router.push(
+                  `/order-confirmation?orderId=${(payload as any).order.id}`
+                );
+              }
+            },
+          });
+
       } catch (e) {
         console.error("Failed to parse cookie:", e);
       }
