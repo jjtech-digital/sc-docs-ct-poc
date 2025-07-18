@@ -248,7 +248,7 @@ export default function CartPage() {
         <button
           className="mt-4 px-6 py-2 bg-cyan-700 text-white rounded w-full cursor-pointer"
           disabled={!cart?.lineItems || cart.lineItems.length < 1}
-          onClick={startCheckoutFlow}
+          onClick={() => router.push("/checkout")}
         >
           Proceed to Checkout
         </button>
