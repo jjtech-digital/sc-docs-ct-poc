@@ -4,15 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import { CartItem } from "@/types/types";
-import Cookies from "js-cookie";
-import { paymentFlow } from "@commercetools/checkout-browser-sdk";
 import { useRouter } from "next/navigation";
-
-function generateOrderNumber() {
-  const randomPart = Math.random().toString(36).substring(2, 6).toUpperCase();
-  const timestampPart = Date.now().toString(36).slice(-2).toUpperCase();
-  return `ORD-${timestampPart}${randomPart}`;
-}
 
 export default function CartPage() {
   const { cart, removeFromCart, clearCart, updateCartQuantity, isLoading } =
@@ -66,60 +58,6 @@ export default function CartPage() {
       </div>
     );
   }
-
-  const startCheckoutFlow = async () => {
-    const cookie = Cookies.get("user");
-    if (cookie) {
-      try {
-        const json = JSON.parse(cookie);
-
-        const res = await fetch(
-          "https://session.australia-southeast1.gcp.commercetools.com/sc-docs-poc/sessions",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${json.access_token}`,
-            },
-            body: JSON.stringify({
-              cart: {
-                cartRef: {
-                  id: `${cart?.id}`,
-                },
-              },
-              metadata: {
-                applicationKey: "demo-commercetools-checkout-taxes",
-                futureOrderNumber: generateOrderNumber(),
-              },
-            }),
-          }
-        );
-
-        const data = await res.json();
-        console.log("Checkout session created:", data);
-
-      paymentFlow({
-            sessionId: data.id, // ← id returned by step 1
-            projectKey: 'sc-docs-poc',
-            region: 'australia-southeast1.gcp',
-
-            /* address/ shipping settings are ignored in payment-only mode */
-
-            logInfo: true,
-            onInfo: ({ code, payload }) => {
-              if (code === 'checkout_completed') {
-                router.push(
-                  `/order-confirmation?orderId=${(payload as any).order.id}`
-                );
-              }
-            },
-          });
-
-      } catch (e) {
-        console.error("Failed to parse cookie:", e);
-      }
-    }
-  };
 
   return (
     <div className="md:mx-auto p-6 flex flex-col gap-10 md:space-x-8 items-center md:flex-row md:gap-0">
