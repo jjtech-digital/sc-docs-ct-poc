@@ -5,12 +5,13 @@ import {
   RefinementList,
   SortBy,
   connectHits,
+  connectStateResults,
   Stats,
 } from "react-instantsearch-dom";
 import searchClient from "@/lib/algoliaClient";
 import Link from "next/link";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const HeartIcon = ({ filled }: { filled?: boolean }) => (
   <svg
@@ -45,6 +46,30 @@ const StarRating = ({ rating = 0, count = 0 }) => (
 
 const locale = "en-GB";
 
+const SkeletonCard = () => (
+  <div
+    className="relative bg-white border rounded-lg shadow-sm p-4 flex flex-col h-full w-full animate-pulse hover:shadow-lg transition"
+    style={{ maxWidth: 400 }}
+  >
+    <div className="absolute top-2 right-2">
+      <div className="w-6 h-6 bg-gray-200 rounded-full" />
+    </div>
+
+    <div className="w-full h-36 bg-gray-200 rounded mb-3" />
+    <div className="h-4 bg-gray-200 rounded w-3/4 mb-1" />
+    <div className="h-3 bg-gray-100 rounded w-1/2 mb-1" />
+    <div className="h-3 bg-gray-100 rounded w-2/3 mb-1" />
+    <div className="h-3 bg-gray-100 rounded w-1/3 mb-1" />
+    <div className="h-4 bg-green-100 rounded w-20 mb-2" />
+    <div className="flex gap-1 mb-2">
+      {[...Array(5)].map((_, i) => (
+        <div key={i} className="w-4 h-4 bg-gray-200 rounded" />
+      ))}
+    </div>
+    <div className="h-3 bg-gray-200 rounded w-1/3 mb-1" />
+    <div className="h-5 bg-orange-300 rounded w-1/2" />
+  </div>
+);
 type HitProps = {
   hit: {
     name?: Record<string, string>;
@@ -118,6 +143,7 @@ const Hit = ({ hit }: HitProps) => {
         >
           <HeartIcon filled={liked} />
         </button>
+
         <Image
           src={image}
           alt={name}
@@ -147,6 +173,7 @@ const Hit = ({ hit }: HitProps) => {
             {productSpec}
           </p>
         )}
+
         {inStock && (
           <span className="inline-block bg-green-100 text-green-700 text-xs rounded px-2 py-0.5 mb-2">
             In Stock
@@ -175,18 +202,54 @@ const Hit = ({ hit }: HitProps) => {
   );
 };
 
-const CustomHits = connectHits(({ hits }: { hits: HitProps["hit"][] }) => (
-  <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4 md:gap-5">
-    {hits.map((hit, index) => (
-      <Hit key={hit.objectID || index} hit={hit} />
-    ))}
-  </div>
-));
+const CustomHits = connectHits(({ hits }: { hits: HitProps["hit"][] }) => {
+  if (hits.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-[300px] col-span-full text-gray-500 text-lg">
+        No products found.
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4 md:gap-5 transition-all duration-300"
+      style={{
+        minHeight: `calc(var(--card-height, 200px) * var(--grid-rows, 5))`,
+      }}
+    >
+      {hits.map((hit, index) => (
+        <Hit key={hit.objectID || index} hit={hit} />
+      ))}
+    </div>
+  );
+});
+
+const HitsWithSkeleton = connectStateResults(
+  ({
+    searchResults,
+    isSearchStalled,
+  }: {
+    searchResults?: { hits?: HitProps["hit"][] };
+    isSearchStalled: boolean;
+  }) => {
+    if (isSearchStalled || !searchResults) {
+      return (
+        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4 md:gap-5">
+          {Array.from({ length: 10 }, (_, i) => (
+            <SkeletonCard key={i} />
+          ))}
+        </div>
+      );
+    }
+    return <CustomHits hits={searchResults.hits || []} />;
+  }
+);
 
 const ProductListingPage = () => (
   <InstantSearch indexName="dev_Products" searchClient={searchClient}>
     <div className="flex flex-col min-h-screen bg-[#f6f2ea]">
-      <div className="flex flex-col lg:flex-row gap-6 max-w-[1520px] m-auto px-4 py-8 w-full">
+      <div className="flex flex-col lg:flex-row gap-6 max-w-[1920px] m-auto px-4 py-8 w-full">
         <aside className="lg:w-72 w-full max-w-full bg-white rounded-xl p-5 border border-gray-200 shadow-sm self-start min-h-[500px]">
           <button className="font-semibold text-sm flex items-center mb-4">
             <svg
@@ -220,7 +283,6 @@ const ProductListingPage = () => (
                 },
               }}
             />
-
             <SortBy
               defaultRefinement="dev_Products"
               items={[
@@ -237,7 +299,9 @@ const ProductListingPage = () => (
               className="ml-auto"
             />
           </div>
-          <CustomHits />
+
+          <HitsWithSkeleton />
+
           <div className="flex justify-center mt-8">
             <Pagination />
           </div>
