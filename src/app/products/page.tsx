@@ -203,28 +203,24 @@ const Hit = ({ hit }: HitProps) => {
 };
 
 const CustomHits = connectHits(({ hits }: { hits: HitProps["hit"][] }) => {
-  const [hydrated, setHydrated] = useState(false);
-
-  useEffect(() => {
-    setHydrated(true);
-  }, []);
-
-  const isLoading = hydrated && hits.length === 0;
+  if (hits.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-[300px] col-span-full text-gray-500 text-lg">
+        No products found.
+      </div>
+    );
+  }
 
   return (
     <div
       className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4 md:gap-5 transition-all duration-300"
       style={{
-        minHeight: "900px", // Lock space based on estimated content height
+        minHeight: `calc(var(--card-height, 200px) * var(--grid-rows, 5))`,
       }}
     >
-      {isLoading
-        ? Array.from({ length: 10 }).map((_, index) => (
-          <SkeletonCard key={index} />
-        ))
-        : hits.map((hit, index) => (
-          <Hit key={hit.objectID || index} hit={hit} />
-        ))}
+      {hits.map((hit, index) => (
+        <Hit key={hit.objectID || index} hit={hit} />
+      ))}
     </div>
   );
 });
@@ -237,10 +233,7 @@ const HitsWithSkeleton = connectStateResults(
     searchResults?: { hits?: HitProps["hit"][] };
     isSearchStalled: boolean;
   }) => {
-    const hits = searchResults?.hits || [];
-    const isLoading = isSearchStalled || !searchResults;
-
-    if (isLoading) {
+    if (isSearchStalled || !searchResults) {
       return (
         <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4 md:gap-5">
           {Array.from({ length: 10 }, (_, i) => (
@@ -249,8 +242,7 @@ const HitsWithSkeleton = connectStateResults(
         </div>
       );
     }
-
-    return <CustomHits hits={hits} />;
+    return <CustomHits hits={searchResults.hits || []} />;
   }
 );
 
