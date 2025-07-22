@@ -42,3 +42,21 @@ export const ctpClient = new ClientBuilder()
 export const apiRoot = createApiBuilderFromCtpClient(ctpClient).withProjectKey({
   projectKey,
 });
+
+export const meClient = (token: string) => {
+  console.log("Creating meClient with token:", token);
+  const httpMiddlewareOptions = {
+    host: apiUrl,
+    fetch,
+    scopes: [scopes],
+  };
+  const projectKey = process.env.PROJECT_KEY as string;
+  const client = new ClientBuilder()
+    .withProjectKey(projectKey)
+    .withExistingTokenFlow(token)
+    .withHttpMiddleware(httpMiddlewareOptions)
+    .withUserAgentMiddleware()
+    .build();
+
+  return createApiBuilderFromCtpClient(client).withProjectKey({ projectKey });
+};

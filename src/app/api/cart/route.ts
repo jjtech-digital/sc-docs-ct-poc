@@ -14,6 +14,7 @@ async function handler(): Promise<NextResponse> {
   const cart = await getOrCreateCart({
     anonymousId: user?.anonymousId,
     customerId: user?.customerId,
+    token: user.access_token as string,
   });
 
   if (!cart) {
