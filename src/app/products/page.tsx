@@ -97,7 +97,7 @@ const Hit = ({ hit }: HitProps) => {
   const inStock = hit.variants?.[0]?.isInStock;
 
   return (
-    <Link href={`/product/${slug}`} className="block">
+    <Link href={`/products/${slug}`} className="block">
       <div className="relative bg-white border rounded-lg shadow-sm p-4 flex flex-col h-full hover:shadow-lg transition">
         {badge && (
           <span
