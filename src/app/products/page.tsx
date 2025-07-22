@@ -11,7 +11,7 @@ import {
 import searchClient from "@/lib/algoliaClient";
 import Link from "next/link";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 const HeartIcon = ({ filled }: { filled?: boolean }) => (
   <svg
