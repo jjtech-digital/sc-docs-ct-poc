@@ -40,7 +40,7 @@ export default function RootLayout({
             <div className="pb-16 flex flex-1 items-center justify-center">
               {children}
             </div>
-            <div className="fixed bottom-0 w-full">
+            <div className="fixed z-50 bottom-0 w-full">
               <Footer />
             </div>
           </CartProvider>

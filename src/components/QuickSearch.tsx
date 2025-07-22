@@ -11,7 +11,6 @@ interface AutocompleteProps {
   refine: (value: string) => void;
 }
 
-
 const locale = "en-GB";
 
 interface HitProps {
@@ -67,7 +66,7 @@ const Autocomplete = ({
         className="w-full p-2 border border-gray-300 rounded shadow-sm focus:outline-none focus:ring"
       />
       {isOpen && hits.length > 0 && (
-        <div className="absolute z-10 left-0 right-0 top-full mt-2 bg-white rounded shadow overflow-hidden max-h-80 overflow-y-auto">
+        <div className="absolute z-50 left-0 right-0 top-full mt-2 bg-white rounded shadow overflow-hidden max-h-80 overflow-y-auto">
           {hits.map((hit: HitProps["hit"], index: number) => (
             <AutocompleteItem key={index} hit={hit} />
           ))}

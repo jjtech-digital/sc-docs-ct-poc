@@ -13,9 +13,11 @@ import QuickSearch from "./QuickSearch";
 const Header = () => {
   const { cart } = useCart();
   const itemCount = cart?.lineItems?.length || 0;
+
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
+
   const userDataFromLS =
     typeof window !== "undefined" ? localStorage.getItem("user") : null;
   const parsedUserData = userDataFromLS ? JSON.parse(userDataFromLS) : null;
@@ -52,7 +54,6 @@ const Header = () => {
       Cookies.remove("user");
       localStorage.removeItem("user");
       setIsLoggedIn(false);
-
       window.location.href = "/";
     } catch (error) {
       console.error("Logout error:", error);
@@ -62,79 +63,86 @@ const Header = () => {
   };
 
   return (
-    <div className="flex justify-between items-center h-12 p-4 w-full bg-[#7795fe] text-white">
-      <Link href="/">
-        <div className="text-sm md:text-lg font-semibold white-nowrap">
+    <header className="w-full bg-[#6559ff] text-white shadow-sm">
+      <div className="flex justify-between items-center h-16 px-4 max-w-screen-xl mx-auto">
+        <Link
+          href="/"
+          className="text-lg md:text-xl font-semibold whitespace-nowrap"
+        >
           CT Checkout Demo
+        </Link>
+
+        <div className="w-full max-w-md flex flex-1 mx-4">
+          <QuickSearch />
         </div>
-      </Link>
-      <div className="w-full max-w-md">
-        <QuickSearch />
-      </div>
-      <div className="flex items-center space-x-2">
-        <Link href="/cart">
-          <div className="relative inline-block">
-            <button className="bg-transparent border-0 text-white px-3 py-1 rounded font-medium cursor-pointer ">
+
+        <div className="flex items-center space-x-4 relative">
+          <Link href="/cart" className="relative">
+            <button
+              className="flex items-center justify-center hover:opacity-90 transition p-2 rounded"
+              aria-label="Cart"
+            >
               <CartIcon />
+              {itemCount > 0 && (
+                <span className="absolute top-0 right-0 -mt-1 -mr-1 bg-red-600 text-white text-xs font-semibold rounded-full w-5 h-5 flex items-center justify-center">
+                  {itemCount}
+                </span>
+              )}
             </button>
-            {itemCount > 0 && (
-              <span className="absolute top-0 right-1 bg-red-600 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
-                {itemCount}
-              </span>
+          </Link>
+
+          <div
+            className="relative"
+            onMouseEnter={() => setShowUserMenu(true)}
+            onMouseLeave={() => setShowUserMenu(false)}
+          >
+            <button
+              className="flex items-center justify-center hover:opacity-90 transition p-2 rounded"
+              onClick={() => setShowUserMenu((prev) => !prev)}
+              aria-label="User menu"
+            >
+              <UserIcon />
+            </button>
+
+            {showUserMenu && (
+              <div className="absolute top-10 right-0 bg-white text-black w-40 rounded-lg shadow-lg py-2 z-20">
+                {isLoggedIn ? (
+                  <>
+                    <div className="px-4 py-2 border-b border-gray-200">
+                      <span className="text-sm font-medium">
+                        Hi {parsedUserData?.firstName || "User"} 👋
+                      </span>
+                    </div>
+                    <button
+                      onClick={handleLogout}
+                      disabled={isLoggingOut}
+                      className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
+                    >
+                      Logout
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <Link href="/login">
+                      <div className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-100 border-b border-gray-200">
+                        <LoginIcon />
+                        <span>Login</span>
+                      </div>
+                    </Link>
+                    <Link href="/signup">
+                      <div className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-100">
+                        <SignupIcon />
+                        <span>Signup</span>
+                      </div>
+                    </Link>
+                  </>
+                )}
+              </div>
             )}
           </div>
-        </Link>
-        <div
-          className="relative"
-          onMouseEnter={() => setShowUserMenu(true)}
-          onClick={() => setShowUserMenu(!showUserMenu)}
-        >
-          <button className="bg-transparent border-0 text-white px-3 py-1 rounded font-medium cursor-pointer">
-            <UserIcon />
-          </button>
-
-          {showUserMenu && (
-            <div
-              className="absolute w-[150px] h-auto bg-white top-10 right-0 rounded-lg shadow-lg text-black py-2 z-10"
-              onMouseLeave={() => setShowUserMenu(false)}
-            >
-              {isLoggedIn ? (
-                <>
-                  <div className="px-4 py-2 border-b border-gray-200">
-                    <span className="text-sm font-medium">
-                      Hi {parsedUserData?.firstName || "User"} 👋
-                    </span>
-                  </div>
-                  <button
-                    onClick={handleLogout}
-                    disabled={isLoggingOut}
-                    className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 cursor-pointer"
-                  >
-                    Logout
-                  </button>
-                </>
-              ) : (
-                <>
-                  <Link href="/login">
-                    <div className="px-4 py-2 text-sm hover:bg-gray-100 cursor-pointer flex gap-2 items-center border-b border-gray-200">
-                      <LoginIcon />
-                      <span>Login</span>
-                    </div>
-                  </Link>
-
-                  <Link href="/signup">
-                    <div className="px-4 py-2 text-sm hover:bg-gray-100 cursor-pointer flex gap-2 items-center">
-                      <SignupIcon />
-                      <span>Signup</span>
-                    </div>
-                  </Link>
-                </>
-              )}
-            </div>
-          )}
         </div>
       </div>
-    </div>
+    </header>
   );
 };
 
