@@ -28,8 +28,8 @@ export async function getOrCreateCart({
         body: {
           currency: "AUD",
           country: "AU",
-          anonymousId,
-          customerId,
+          ...(anonymousId ? { anonymousId } : {}),
+          ...(customerId ? { customerId } : {}),
         },
       })
       .execute();
