@@ -23,7 +23,7 @@ async function handler(req: NextRequest): Promise<NextResponse> {
   const user = parseJSON(cookies.user, {}) as User;
   const cart = await getOrCreateCart({
     anonymousId: user?.anonymousId,
-    createCart: false,
+    token: user.access_token as string,
   });
 
   const body = await req.json();
