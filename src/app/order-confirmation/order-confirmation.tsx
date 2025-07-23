@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import TickMarkCircleIcon from "@/icons/TickMarkCircleIcon";
 import { OrderConfirmationProps } from "@/types/order-confirmation.types";
+const FALLBACK_IMAGE = "https://via.placeholder.com/64?text=No+Image";
 
 export default function OrderConfirmation({ order }: OrderConfirmationProps) {
   const [loading, setLoading] = useState(true);
@@ -91,7 +92,7 @@ export default function OrderConfirmation({ order }: OrderConfirmationProps) {
           {items.map((item, idx) => (
             <div key={idx} className="flex items-start mb-4">
               <Image
-                src={item.variant.images?.[0]?.url ?? "/fallback.png"}
+                src={item.variant.images?.[0]?.url ?? FALLBACK_IMAGE}
                 alt={item.name?.en ?? "Product"}
                 width={64}
                 height={64}
