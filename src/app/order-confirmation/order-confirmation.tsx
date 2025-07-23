@@ -3,53 +3,7 @@
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import TickMarkCircleIcon from "@/icons/TickMarkCircleIcon";
-
-type OrderConfirmationProps = {
-  order: {
-    shippingAddress?: {
-      firstName?: string;
-      lastName?: string;
-      streetName?: string;
-      city?: string;
-      postalCode?: string;
-      country?: string;
-    };
-    billingAddress?: {
-      firstName?: string;
-      lastName?: string;
-      streetName?: string;
-      city?: string;
-      postalCode?: string;
-      country?: string;
-    };
-    lineItems: Array<{
-      name?: { en?: string };
-      quantity: number;
-      price: {
-        value: { centAmount: number };
-        discounted?: boolean;
-      };
-      variant: {
-        images?: Array<{ url: string }>;
-      };
-    }>;
-    customerEmail?: string;
-    shippingInfo?: {
-      price?: { centAmount: number };
-      shippingMethodName?: string;
-    };
-    totalPrice?: {
-      centAmount: number;
-      currencyCode?: string;
-    };
-    taxedPrice?: {
-      totalNet: { centAmount: number };
-    };
-    orderNumber?: string;
-    id?: string;
-    paymentState?: string;
-  };
-};
+import { OrderConfirmationProps } from "@/types/order-confirmation.types.";
 
 export default function OrderConfirmation({ order }: OrderConfirmationProps) {
   const [loading, setLoading] = useState(true);
