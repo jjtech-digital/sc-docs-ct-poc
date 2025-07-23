@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import TickMarkCircleIcon from "@/icons/TickMarkCircleIcon";
-import { OrderConfirmationProps } from "@/types/order-confirmation.types.";
+import { OrderConfirmationProps } from "@/types/order-confirmation.types";
 
 export default function OrderConfirmation({ order }: OrderConfirmationProps) {
   const [loading, setLoading] = useState(true);
