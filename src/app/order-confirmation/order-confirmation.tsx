@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import TickMarkCircleIcon from "@/icons/TickMarkCircleIcon";
 
@@ -52,7 +52,12 @@ type OrderConfirmationProps = {
 };
 
 export default function OrderConfirmation({ order }: OrderConfirmationProps) {
-  if (!order) return <div>Order not found.</div>;
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => setLoading(false), 300);
+    return () => clearTimeout(timeout);
+  }, []);
 
   const shipping = order.shippingAddress;
   const billing = order.billingAddress;
@@ -64,6 +69,20 @@ export default function OrderConfirmation({ order }: OrderConfirmationProps) {
 
   const formatCurrency = (amount: number) =>
     `${currency} ${(amount / 100).toFixed(2)}`;
+
+  if (loading) {
+    return (
+      <div className="max-w-4xl mx-auto my-10 p-6">
+        <div className="animate-pulse space-y-4">
+          <div className="h-8 bg-gray-300 rounded w-1/2" />
+          <div className="h-6 bg-gray-200 rounded w-1/4" />
+          <div className="h-40 bg-gray-100 rounded" />
+          <div className="h-24 bg-gray-100 rounded" />
+          <div className="h-10 bg-gray-300 rounded w-32" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col lg:flex-row max-w-4xl mx-auto my-10 p-6 bg-white rounded-lg shadow-md">
