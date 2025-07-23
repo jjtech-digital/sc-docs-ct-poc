@@ -1,14 +1,21 @@
-"use client";
+import { apiRoot } from "@/lib/ctClient";
+import { redirect } from "next/navigation";
+import OrderConfirmation from "./order-confirmation";
 
-import React, { Suspense } from "react";
-import OrderConfirmationClient from "./order-confirmation";
+interface PageProps {
+  searchParams: { orderId?: string };
+}
 
-const OrderConfirmation = () => {
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <OrderConfirmationClient />
-    </Suspense>
-  );
-};
+export default async function Page({ searchParams }: PageProps) {
+  const orderId = searchParams.orderId;
+  if (!orderId) redirect("/");
 
-export default OrderConfirmation;
+  try {
+    const res = await apiRoot.orders().withId({ ID: orderId }).get().execute();
+    const order = res.body;
+
+    return <OrderConfirmation order={order} />;
+  } catch {
+    return <div>Order not found.</div>;
+  }
+}
