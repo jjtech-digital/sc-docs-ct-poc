@@ -12,64 +12,12 @@ import searchClient from "@/lib/algoliaClient";
 import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
-
-const HeartIcon = ({ filled }: { filled?: boolean }) => (
-  <svg
-    width={24}
-    height={24}
-    fill={filled ? "#ff385c" : "none"}
-    stroke="#333"
-    strokeWidth={2}
-    viewBox="0 0 24 24"
-    className="hover:scale-105 transition-transform"
-  >
-    <path d="M12 21C12 21 5 13.76 5 8.5C5 5.47 7.47 3 10.5 3C12.04 3 13.54 3.81 14.26 5.03C14.98 3.81 16.48 3 18 3C21.03 3 23.5 5.47 23.5 8.5C23.5 13.76 12 21 12 21Z" />
-  </svg>
-);
-
-const StarRating = ({ rating = 0, count = 0 }) => (
-  <div className="flex items-center gap-1">
-    {[...Array(5)].map((_, i) => (
-      <svg
-        key={i}
-        className={`w-4 h-4 ${i < rating ? "text-yellow-400" : "text-gray-300"
-          }`}
-        fill="currentColor"
-        viewBox="0 0 20 20"
-      >
-        <polygon points="9.9,1.1 12.3,7 18.7,7.6 13.6,11.9 15.2,18.2 9.9,14.6 4.7,18.2 6.3,11.9 1.2,7.6 7.6,7 " />
-      </svg>
-    ))}
-    {count > 0 && <span className="text-xs text-gray-600 ml-1">({count})</span>}
-  </div>
-);
+import { HeartIcon } from "@/components/HeartIcon";
+import { StarRating } from "@/components/StarRating";
+import { SkeletonCard } from "@/components/SkeletonCard";
+import CustomFacetLogger from "@/components/CustomFacetLogger";
 
 const locale = "en-GB";
-
-const SkeletonCard = () => (
-  <div
-    className="relative bg-white border rounded-lg shadow-sm p-4 flex flex-col h-full w-full animate-pulse hover:shadow-lg transition"
-    style={{ maxWidth: 400 }}
-  >
-    <div className="absolute top-2 right-2">
-      <div className="w-6 h-6 bg-gray-200 rounded-full" />
-    </div>
-
-    <div className="w-full h-36 bg-gray-200 rounded mb-3" />
-    <div className="h-4 bg-gray-200 rounded w-3/4 mb-1" />
-    <div className="h-3 bg-gray-100 rounded w-1/2 mb-1" />
-    <div className="h-3 bg-gray-100 rounded w-2/3 mb-1" />
-    <div className="h-3 bg-gray-100 rounded w-1/3 mb-1" />
-    <div className="h-4 bg-green-100 rounded w-20 mb-2" />
-    <div className="flex gap-1 mb-2">
-      {[...Array(5)].map((_, i) => (
-        <div key={i} className="w-4 h-4 bg-gray-200 rounded" />
-      ))}
-    </div>
-    <div className="h-3 bg-gray-200 rounded w-1/3 mb-1" />
-    <div className="h-5 bg-orange-300 rounded w-1/2" />
-  </div>
-);
 type HitProps = {
   hit: {
     name?: Record<string, string>;
@@ -301,7 +249,7 @@ const ProductListingPage = () => (
           </div>
 
           <HitsWithSkeleton />
-
+          <CustomFacetLogger />
           <div className="flex justify-center mt-8">
             <Pagination />
           </div>
