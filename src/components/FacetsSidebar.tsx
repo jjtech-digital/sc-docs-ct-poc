@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import MiniChevronUp from "./MiniChevronUp";
 
 type FacetsSidebarProps = {
   facets?: Record<string, Record<string, number>>;
@@ -132,7 +133,7 @@ export function FacetsSidebar({
                       display: "inline-block",
                     }}
                   >
-                    ▶
+                    <MiniChevronUp width={20} height={20} />
                   </span>
                 </button>
                 {sectionOpen && (
