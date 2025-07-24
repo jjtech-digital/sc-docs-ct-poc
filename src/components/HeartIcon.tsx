@@ -1,4 +1,7 @@
-export const HeartIcon = ({ filled }: { filled?: boolean }) => (
+export interface HeartIconProps {
+  filled?: boolean;
+}
+export const HeartIcon = ({ filled }: HeartIconProps) => (
   <svg
     width={24}
     height={24}
