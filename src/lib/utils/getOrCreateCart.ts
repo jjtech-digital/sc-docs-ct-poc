@@ -17,7 +17,13 @@ export async function getOrCreateCart({
   let cart: Cart | null = null;
 
   try {
-    const mClient = meClient(token as string);
+    const mClient = meClient(token);
+    if (!mClient) {
+      throw new Error(
+        "Invalid or missing token; cannot create commercetools client"
+      );
+    }
+
     const cartResponse = await mClient.me().activeCart().get().execute();
     cart = cartResponse.body;
   } catch (err) {

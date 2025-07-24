@@ -44,14 +44,20 @@ export const apiRoot = createApiBuilderFromCtpClient(ctpClient).withProjectKey({
 });
 
 export const meClient = (token: string) => {
-  const httpMiddlewareOptions = {
-    host: apiUrl,
-    fetch,
-    scopes: [scopes],
+  if (!token) return null;
+
+  const existingTokenMiddlewareOptions = {
+    force: false,
   };
+
+  const httpMiddlewareOptions: HttpMiddlewareOptions = {
+    host: apiUrl,
+    httpClient: fetch,
+  };
+
   const client = new ClientBuilder()
     .withProjectKey(projectKey)
-    .withExistingTokenFlow(token)
+    .withExistingTokenFlow(token, existingTokenMiddlewareOptions)
     .withHttpMiddleware(httpMiddlewareOptions)
     .withUserAgentMiddleware()
     .build();
