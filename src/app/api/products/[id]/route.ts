@@ -9,7 +9,6 @@ async function handler(
 ): Promise<NextResponse> {
   const params = await context?.params;
   const id = await params?.id;
-  console.log("Product ID:", id);
   if (!id) throw new ApiError(400, "Product ID is required.");
   const locale = getLocaleFromRequest(req);
 

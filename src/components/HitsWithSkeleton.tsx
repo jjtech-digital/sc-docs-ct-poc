@@ -10,7 +10,6 @@ export const HitsWithSkeleton = connectStateResults(
     searchResults?: { hits?: Record<string, unknown>[] };
     isSearchStalled: boolean;
   }) => {
-    console.log("Search results:", searchResults, "Stalled:", isSearchStalled);
     
     if (isSearchStalled || !searchResults) {
       return (
