@@ -2,8 +2,8 @@
 
 import React, { useState } from "react";
 import { InstantSearch, connectAutoComplete } from "react-instantsearch-dom";
-import searchClient from "@/lib/algoliaClient";
 import Image from "next/image";
+import { client } from "@/lib/algoliaClient";
 
 interface AutocompleteProps {
   hits: HitProps["hit"][];
@@ -78,9 +78,10 @@ const Autocomplete = ({
 
 const CustomAutocomplete = connectAutoComplete(Autocomplete);
 
+
 const QuickSearch = () => {
   return (
-    <InstantSearch searchClient={searchClient} indexName="dev_Products">
+    <InstantSearch searchClient={client} indexName="dev_Products">
       <CustomAutocomplete />
     </InstantSearch>
   );

@@ -1,39 +1,36 @@
-import { useEffect } from "react";
+import React, { useState, useEffect } from "react";
+import { fetchFacets } from "@/lib/algoliaClient";
+import { FacetsSidebar } from "./FacetsSidebar";
 
-const FacetsDebugger = () => {
-  useEffect(() => {
-    const fetchFacetedSearch = async () => {
-      const url = "https://82vvnxg0dn-dsn.algolia.net/1/indexes/*/queries";
-      const body = {
-        requests: [
-          {
-            indexName: "dev_Products",
-            params: new URLSearchParams({
-              facets: '["*"]',
-              maxValuesPerFacet: "20",
-              page: "0",
-            }).toString(),
-          },
-        ],
-      };
-
-      const response = await fetch(url, {
-        method: "POST",
-        headers: {
-          "X-Algolia-API-Key": "21d2f7c173e33c23d9ed1b29c8b53e39",
-          "X-Algolia-Application-Id": "82VVNXG0DN",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(body),
-      });
-      const data = await response.json();
-      console.log("Faceted search response:", data,response);
-    };
-
-    fetchFacetedSearch();
-  }, []);
-
-  return null; 
+type FacetsDebuggerProps = {
+  showFilterClass?: string;
+  isOpen?: boolean;
+  onClose?: () => void;
 };
 
-export default FacetsDebugger;
+export default function FacetsDebugger({
+  showFilterClass = "",
+  isOpen = true,
+  onClose,
+}: FacetsDebuggerProps) {
+  const [facets, setFacets] = useState<Record<string, Record<string, number>>>(
+    {}
+  );
+
+  useEffect(() => {
+    fetchFacets().then((result) => {
+      if (result) {
+        setFacets(result);
+      }
+    });
+  }, []);
+
+  return (
+    <FacetsSidebar
+      facets={facets}
+      showFilterClass={showFilterClass}
+      isOpen={isOpen}
+      onClose={onClose}
+    />
+  );
+}

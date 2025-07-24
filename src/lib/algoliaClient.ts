@@ -1,24 +1,23 @@
-"use client";
+import algoliasearch from 'algoliasearch';
 
-import algoliasearch from "algoliasearch";
+export const client = algoliasearch(process.env.NEXT_PUBLIC_ALGOLIA_APP_ID!,
+  process.env.NEXT_PUBLIC_ALGOLIA_SEARCH_KEY!);
+const index = client.initIndex('dev_safetydocs');
 
-const searchClient = algoliasearch(
-  process.env.NEXT_PUBLIC_ALGOLIA_APP_ID!,
-  process.env.NEXT_PUBLIC_ALGOLIA_SEARCH_KEY!
-);
+// Search with facets
+export const fetchFacets = async () => {
+  try { 
+    const results = await index.search('', {
+      facets: ['*'], // Get all facets
+      maxFacetHits: 100, // Increase if you need more facet values
+    });
+    return results.facets;
+  } catch (error) {
+    console.error("Error fetching facets:", error);
+    throw error;
+  }
+};
 
-const index = searchClient.initIndex("dev_Products");
+const results = await fetchFacets();
 
-export async function fetchFacets(query = "") {
-  const facetAttributes = ['*'];
-
-  const result = await index.search(query, {
-    facets: facetAttributes,
-    maxValuesPerFacet: 100, 
-    hitsPerPage: 20,
-  });
-
-  return result;
-}
-
-export default searchClient;
+console.log("dsbfjsd",results);
