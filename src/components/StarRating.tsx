@@ -1,10 +1,15 @@
-export const StarRating = ({ rating = 0, count = 0 }) => (
+interface StarRatingProps {
+  rating?: number;
+  count?: number;
+}
+export const StarRating = ({ rating = 0, count = 0 }: StarRatingProps) => (
   <div className="flex items-center gap-1">
     {[...Array(5)].map((_, i) => (
       <svg
         key={i}
-        className={`w-4 h-4 ${i < rating ? "text-yellow-400" : "text-gray-300"
-          }`}
+        className={`w-4 h-4 ${
+          i < rating ? "text-yellow-400" : "text-gray-300"
+        }`}
         fill="currentColor"
         viewBox="0 0 20 20"
       >
