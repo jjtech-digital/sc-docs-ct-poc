@@ -11,7 +11,7 @@ import {
 import { HitsWithSkeleton } from "@/components/HitsWithSkeleton";
 import { CustomFacetLogger } from "@/components/CustomFacetLogger";
 import FacetsDebugger from "@/components/FacetsDebugger";
-import { searchClient } from "@algolia/client-search";
+import { searchClient } from "@/lib/algoliaClient";
 
 const ProductListingPage = () => {
   const [showFilters, setShowFilters] = useState(false);
