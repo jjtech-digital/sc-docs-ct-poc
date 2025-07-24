@@ -7,7 +7,7 @@ export interface ProductProps {
   key?: string;
   title: string;
   price: Price;
-  name: { "en-US": string };
+  name: { "en-US": string; en: string };
   slug?: { "en-US": string };
   masterVariant?: {
     id: string;
@@ -66,14 +66,13 @@ export interface CartItem {
   totalPrice: Price;
 }
 
-
 export type Cart = {
   anonymousId?: string;
   currency?: string;
   id?: string;
   lineItems?: CartItem[];
-  totalPrice?: Price
-}
+  totalPrice?: Price;
+};
 
 export type CartContextType = {
   cart: Cart;
@@ -85,6 +84,11 @@ export type CartContextType = {
   isLoading: boolean;
 };
 
-export type SignupInfo = { email: string; password: string; firstName: string; lastName: string };
+export type SignupInfo = {
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+};
 
 export type LoginInfo = { email: string; password: string };

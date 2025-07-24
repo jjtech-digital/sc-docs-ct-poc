@@ -15,6 +15,11 @@ const nextConfig: NextConfig = {
         hostname: "storage.googleapis.com",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "cdn11.bigcommerce.com",
+        pathname: "/**",
+      },
     ],
   },
 };
