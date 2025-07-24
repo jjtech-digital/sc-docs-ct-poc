@@ -21,7 +21,6 @@ export const CustomHits = connectHits(({ hits }: { hits: HitProps["hit"][] }) =>
       </div>
     );
   }
-console.log("Rendering hits:", hits);
 
   return (
     <div
