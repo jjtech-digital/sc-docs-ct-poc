@@ -4,40 +4,53 @@ import { getLocaleFromRequest } from "@/lib/utils/getLocaleFromRequest";
 import { withExceptionFilter } from "@/lib/utils/withExceptionFilter";
 
 async function handler(req: NextRequest): Promise<NextResponse> {
-  const { searchParams } = new URL(req.url);
+  try {
+    console.log("Fetching products...");
+    const { searchParams } = new URL(req.url);
 
-  const limit = parseInt(searchParams.get("limit") || "10", 10);
-  const offset = parseInt(searchParams.get("offset") || "0", 10);
-  const locale = getLocaleFromRequest(req);
+    const limit = parseInt(searchParams.get("limit") || "10", 10);
+    const offset = parseInt(searchParams.get("offset") || "0", 10);
+    const locale = getLocaleFromRequest(req);
 
-  const result = await apiRoot
-    .productProjections()
-    .get({
-      queryArgs: {
+    const result = await apiRoot
+      .productProjections()
+      .get({
+        queryArgs: {
+          limit,
+          offset,
+          localeProjection: locale,
+          sort: "createdAt desc",
+        },
+      })
+      .execute();
+
+    const products = result.body.results.map((product) => ({
+      id: product.id,
+      key: product.key,
+      name: product.name,
+      slug: product.slug,
+      description: product.description,
+      image: product.masterVariant.images?.[0]?.url || null,
+      price: product.masterVariant.prices?.[0]?.value,
+    }));
+
+    return NextResponse.json(
+      {
+        total: result.body.total,
+        count: result.body.count,
+        offset: result.body.offset,
         limit,
-        offset,
-        localeProjection: locale,
+        products,
       },
-    })
-    .execute();
-
-  const products = result.body.results.map((product) => ({
-    id: product.id,
-    key: product.key,
-    name: product.name,
-    slug: product.slug,
-    description: product.description,
-    image: product.masterVariant.images?.[0]?.url || null,
-    price: product.masterVariant.prices?.[0]?.value,
-  }));
-
-  return NextResponse.json({
-    total: result.body.total,
-    count: result.body.count,
-    offset: result.body.offset,
-    limit,
-    products,
-  });
+      { status: 200 }
+    );
+  } catch (error) {
+    console.log("Error fetching products:", error);
+    return NextResponse.json(
+      { error: "An error occurred while fetching products." },
+      { status: 500 }
+    );
+  }
 }
 
 export const GET = withExceptionFilter(handler);
