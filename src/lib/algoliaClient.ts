@@ -6,11 +6,12 @@ export const searchClient = algoliasearch(
 );
 const index = searchClient.initIndex("dev_safetydocs");
 
-export const fetchFacets = async () => {
+export const fetchFacets = async (facetFilters: string[] = []) => {
   try {
     const results = await index.search("", {
       facets: ["*"],
       maxFacetHits: 100,
+      facetFilters,
     });
     return results.facets;
   } catch (error) {
@@ -18,3 +19,4 @@ export const fetchFacets = async () => {
     throw error;
   }
 };
+

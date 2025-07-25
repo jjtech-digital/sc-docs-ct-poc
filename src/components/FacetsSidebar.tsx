@@ -23,6 +23,8 @@ export function FacetsSidebar({
   const [expandedFacets, setExpandedFacets] = useState<Record<string, boolean>>(
     {}
   );
+  console.log("facets", facets);
+  
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
@@ -36,20 +38,22 @@ export function FacetsSidebar({
   }, [facets]);
 
   const handleCheck = (facetKey: string, facetValue: string) => {
-    const newCheckedFacets = { ...checkedFacets };
-    if (!newCheckedFacets[facetKey]) {
-      newCheckedFacets[facetKey] = new Set();
-    }
-    if (newCheckedFacets[facetKey].has(facetValue)) {
-      newCheckedFacets[facetKey].delete(facetValue);
-      if (newCheckedFacets[facetKey].size === 0) {
-        delete newCheckedFacets[facetKey];
-      }
+  const newCheckedFacets = { ...checkedFacets };
+  const currentSet = new Set(checkedFacets[facetKey] || []);
+  if (currentSet.has(facetValue)) {
+    currentSet.delete(facetValue);
+    if (currentSet.size === 0) {
+      delete newCheckedFacets[facetKey];
     } else {
-      newCheckedFacets[facetKey].add(facetValue);
+      newCheckedFacets[facetKey] = currentSet;
     }
-    onFacetChange(newCheckedFacets);
-  };
+  } else {
+    currentSet.add(facetValue);
+    newCheckedFacets[facetKey] = currentSet;
+  }
+  onFacetChange(newCheckedFacets);
+};
+
 
   const handleToggleExpand = (facetKey: string) => {
     setExpandedFacets((prev) => ({
@@ -117,7 +121,6 @@ export function FacetsSidebar({
           </button>
         </div>
 
-        {/* Facets list */}
         {Object.entries(facets)
           .sort()
           .map(([facetKey, facetValues]) => {

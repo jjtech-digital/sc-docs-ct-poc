@@ -15,14 +15,12 @@ export default function FacetsDebugger({
   onClose,
   onFiltersChange,
 }: FacetsDebuggerProps) {
-  const [facets, setFacets] = useState<Record<string, Record<string, number>>>(
-    {}
-  );
-
   const [checkedFacets, setCheckedFacets] = useState<
     Record<string, Set<string>>
   >({});
-
+  const [facets, setFacets] = useState<Record<string, Record<string, number>>>(
+    {}
+  );
   useEffect(() => {
     fetchFacets().then((result) => {
       if (result) {
@@ -32,13 +30,14 @@ export default function FacetsDebugger({
   }, []);
 
   useEffect(() => {
-    const facetFilters: string[] = [];
-    for (const [facetName, selectedValues] of Object.entries(checkedFacets)) {
-      selectedValues.forEach((value) => {
-        facetFilters.push(`${facetName}:${value}`);
-      });
-    }
-    onFiltersChange(facetFilters);
+    const facetFilters = Object.entries(checkedFacets).flatMap(
+      ([facet, values]) =>
+        Array.from(values).map((value) => `${facet}:${value}`)
+    );
+
+    fetchFacets(facetFilters).then((filteredFacets) => {
+      setFacets(filteredFacets ?? {});
+    });
   }, [checkedFacets, onFiltersChange]);
 
   return (
