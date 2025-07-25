@@ -15,10 +15,15 @@ import { searchClient } from "@/lib/algoliaClient";
 
 const ProductListingPage = () => {
   const [showFilters, setShowFilters] = useState(false);
+  const [facetFilters, setFacetFilters] = useState<string[]>([]);
 
   return (
-    <InstantSearch indexName="dev_Products" searchClient={searchClient}>
-      <Configure facets={["*"]} maxValuesPerFacet={20} />
+    <InstantSearch indexName="dev_safetydocs" searchClient={searchClient}>
+      <Configure
+        facets={["*"]}
+        maxValuesPerFacet={20}
+        facetFilters={facetFilters.join(" AND ") || undefined}
+      />
 
       <div className="max-w-[1920px] m-auto px-4 py-8 w-full">
         <button
@@ -52,6 +57,7 @@ const ProductListingPage = () => {
               showFilterClass="your-custom-class-if-needed"
               isOpen={showFilters}
               onClose={() => setShowFilters(false)}
+              onFiltersChange={setFacetFilters}
             />
           )}
 
@@ -65,15 +71,15 @@ const ProductListingPage = () => {
                 }}
               />
               <SortBy
-                defaultRefinement="dev_Products"
+                defaultRefinement="dev_safetydocs"
                 items={[
-                  { value: "dev_Products", label: "Recommended" },
+                  { value: "dev_safetydocs", label: "Recommended" },
                   {
-                    value: "dev_Products_price_asc",
+                    value: "dev_safetydocs_price_asc",
                     label: "Price: Low to High",
                   },
                   {
-                    value: "dev_Products_price_desc",
+                    value: "dev_safetydocs_price_desc",
                     label: "Price: High to Low",
                   },
                 ]}

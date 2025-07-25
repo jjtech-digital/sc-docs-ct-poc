@@ -5,7 +5,8 @@ import MiniChevronUp from "./MiniChevronUp";
 
 type FacetsSidebarProps = {
   facets?: Record<string, Record<string, number>>;
-  onFacetChange?: (checked: Record<string, Record<string, boolean>>) => void;
+  checkedFacets: Record<string, Set<string>>;
+  onFacetChange: (checkedFacets: Record<string, Set<string>>) => void;
   showFilterClass?: string;
   isOpen?: boolean;
   onClose?: () => void;
@@ -13,14 +14,12 @@ type FacetsSidebarProps = {
 
 export function FacetsSidebar({
   facets = {},
+  checkedFacets,
   onFacetChange,
   showFilterClass = "",
   isOpen = true,
   onClose,
 }: FacetsSidebarProps) {
-  const [localChecked, setLocalChecked] = useState<
-    Record<string, Record<string, boolean>>
-  >({});
   const [expandedFacets, setExpandedFacets] = useState<Record<string, boolean>>(
     {}
   );
@@ -37,11 +36,19 @@ export function FacetsSidebar({
   }, [facets]);
 
   const handleCheck = (facetKey: string, facetValue: string) => {
-    const current = { ...localChecked };
-    current[facetKey] = current[facetKey] || {};
-    current[facetKey][facetValue] = !current[facetKey][facetValue];
-    setLocalChecked(current);
-    onFacetChange?.(current);
+    const newCheckedFacets = { ...checkedFacets };
+    if (!newCheckedFacets[facetKey]) {
+      newCheckedFacets[facetKey] = new Set();
+    }
+    if (newCheckedFacets[facetKey].has(facetValue)) {
+      newCheckedFacets[facetKey].delete(facetValue);
+      if (newCheckedFacets[facetKey].size === 0) {
+        delete newCheckedFacets[facetKey];
+      }
+    } else {
+      newCheckedFacets[facetKey].add(facetValue);
+    }
+    onFacetChange(newCheckedFacets);
   };
 
   const handleToggleExpand = (facetKey: string) => {
@@ -57,6 +64,13 @@ export function FacetsSidebar({
       [facetKey]: !prev[facetKey],
     }));
   };
+
+  const handleClearAll = () => {
+    onFacetChange({});
+  };
+
+  const isChecked = (facetKey: string, facetValue: string) =>
+    checkedFacets[facetKey]?.has(facetValue) ?? false;
 
   return (
     <>
@@ -103,6 +117,7 @@ export function FacetsSidebar({
           </button>
         </div>
 
+        {/* Facets list */}
         {Object.entries(facets)
           .sort()
           .map(([facetKey, facetValues]) => {
@@ -144,9 +159,9 @@ export function FacetsSidebar({
                           <input
                             type="checkbox"
                             id={`${facetKey}--${value}`}
-                            checked={!!localChecked[facetKey]?.[value]}
+                            checked={isChecked(facetKey, value)}
                             onChange={() => handleCheck(facetKey, value)}
-                            className="accent-[black] w-4 h-4 mr-2"
+                            className="accent-[black] w-full max-w-4 h-full max-h-4 mr-2"
                           />
                           <label
                             htmlFor={`${facetKey}--${value}`}
@@ -177,7 +192,11 @@ export function FacetsSidebar({
               </div>
             );
           })}
-        <button className="mt-2 w-full py-2 bg-gray-100 text-sm font-medium rounded hover:bg-gray-200">
+        <button
+          onClick={handleClearAll}
+          className="mt-2 w-full py-2 bg-gray-100 text-sm font-medium rounded hover:bg-gray-200"
+          type="button"
+        >
           Clear all
         </button>
       </aside>
