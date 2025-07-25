@@ -58,9 +58,9 @@ export const Hit = ({ hit }: HitProps) => {
   return (
     <Link
       href={`/products/${slug}`}
-      className="block h-full max-h-[350px] min-h-[350px]"
+      className="block h-full max-h-[380px] min-h-[380px]"
     >
-      <div className="bg-white border rounded-lg shadow-sm p-4 flex flex-col hover:shadow-lg transition max-w-xs h-full max-h-[350px] min-h-[350px]">
+      <div className="bg-white border rounded-lg shadow-sm p-4 flex flex-col hover:shadow-lg transition max-w-xs h-full max-h-[380px] min-h-[380px]">
         {" "}
         {badge && (
           <span
