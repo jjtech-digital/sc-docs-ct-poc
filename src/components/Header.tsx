@@ -64,7 +64,7 @@ const Header = () => {
 
   return (
     <header className="w-full bg-[#6559ff] text-white shadow-sm">
-      <div className="flex justify-between items-center h-16 px-4 max-w-screen-xl mx-auto">
+      <div className="flex justify-between items-center h-16 px-4 max-w-[1920px] mx-auto">
         <Link
           href="/"
           className="text-lg md:text-xl font-semibold whitespace-nowrap"

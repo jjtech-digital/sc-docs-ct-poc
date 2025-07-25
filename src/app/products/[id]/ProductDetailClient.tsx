@@ -69,9 +69,14 @@ const ProductDetailClient = ({ id }: { id: string }) => {
           <div className="mb-4">
             <h3 className="font-semibold mb-1">Key Features:</h3>
             <ul className="list-disc list-inside text-sm text-gray-700">
-              {product?.masterVariant?.attributes?.map((feature, i) => (
-                <li key={i}>{feature?.value?.["en-US"]}</li>
-              ))}
+              {product?.masterVariant?.attributes
+                ?.filter((feature) => {
+                  const val = feature?.value?.["en-US"];
+                  return val !== undefined && val !== null && val !== "";
+                })
+                .map((feature, i) => (
+                  <li key={i}>{feature.value["en-US"]}</li>
+                ))}
             </ul>
           </div>
 

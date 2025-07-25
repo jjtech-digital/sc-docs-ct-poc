@@ -16,7 +16,7 @@ const ProductCard = ({ product }: { product: ProductProps }) => {
         <div className="relative w-full h-64">
           <Image
             src={image}
-            alt={name?.["en-US"]}
+            alt={name?.["en-US"] || "Product Image"}
             fill
             className="object-contain p-3"
           />

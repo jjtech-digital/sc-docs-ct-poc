@@ -1,10 +1,20 @@
-"use client";
+import algoliasearch from "algoliasearch/lite";
 
-import { algoliasearch } from "algoliasearch";
-
-const searchClient = algoliasearch(
+export const searchClient = algoliasearch(
   process.env.NEXT_PUBLIC_ALGOLIA_APP_ID!,
   process.env.NEXT_PUBLIC_ALGOLIA_SEARCH_KEY!
 );
+const index = searchClient.initIndex("dev_safetydocs");
 
-export default searchClient;
+export const fetchFacets = async () => {
+  try {
+    const results = await index.search("", {
+      facets: ["*"],
+      maxFacetHits: 100,
+    });
+    return results.facets;
+  } catch (error) {
+    console.error("Error fetching facets:", error);
+    throw error;
+  }
+};

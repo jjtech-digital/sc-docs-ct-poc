@@ -2,8 +2,8 @@
 
 import React, { useState } from "react";
 import { InstantSearch, connectAutoComplete } from "react-instantsearch-dom";
-import searchClient from "@/lib/algoliaClient";
 import Image from "next/image";
+import { searchClient } from "@/lib/algoliaClient";
 
 interface AutocompleteProps {
   hits: HitProps["hit"][];
