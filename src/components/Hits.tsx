@@ -56,8 +56,12 @@ export const Hit = ({ hit }: HitProps) => {
   const inStock = hit.variants?.[0]?.isInStock;
 
   return (
-    <Link href={`/products/${slug}`} className="block">
-      <div className="relative bg-white border rounded-lg shadow-sm p-4 flex flex-col h-auto hover:shadow-lg transition">
+    <Link
+      href={`/products/${slug}`}
+      className="block h-full max-h-[350px] min-h-[350px]"
+    >
+      <div className="bg-white border rounded-lg shadow-sm p-4 flex flex-col hover:shadow-lg transition max-w-xs h-full max-h-[350px] min-h-[350px]">
+        {" "}
         {badge && (
           <span
             className={`absolute left-2 top-2 px-2 py-0.5 rounded text-xs font-bold ${
@@ -67,7 +71,6 @@ export const Hit = ({ hit }: HitProps) => {
             {badge}
           </span>
         )}
-
         <button
           className="absolute top-2 right-2 z-10"
           aria-label="Toggle wishlist"
@@ -78,7 +81,6 @@ export const Hit = ({ hit }: HitProps) => {
         >
           <HeartIcon filled={liked} />
         </button>
-
         <Image
           src={image}
           alt={name}
@@ -87,35 +89,34 @@ export const Hit = ({ hit }: HitProps) => {
           className="w-full h-36 object-contain bg-[#f9f7f2] rounded mb-3"
           unoptimized={image === "/placeholder.png"}
         />
-
         <h3 className="text-sm font-semibold text-gray-900 line-clamp-2 mb-1">
           {name}
         </h3>
-
-        {productType && <p className="text-xs text-gray-500 mb-1">{productType}</p>}
-
+        {productType && (
+          <p className="text-xs text-gray-500 mb-1">{productType}</p>
+        )}
         {(colorLabel || finishLabel) && (
           <p className="text-xs text-gray-600 mb-1">
             {colorLabel && <span className="mr-2">Color: {colorLabel}</span>}
             {finishLabel && <span>Finish: {finishLabel}</span>}
           </p>
         )}
-
         {productSpec && (
-          <p className="text-xs text-gray-500 italic truncate mb-1">{productSpec}</p>
+          <p className="text-xs text-gray-500 italic truncate mb-1">
+            {productSpec}
+          </p>
         )}
-
         {inStock && (
           <span className="inline-block bg-green-100 text-green-700 text-xs rounded px-2 py-0.5 mb-2">
             In Stock
           </span>
         )}
-
         <StarRating rating={rating} count={reviewCount} />
-
         <div className="mt-2">
           {rrp > price && (
-            <p className="text-xs text-gray-400 line-through">RRP ${rrp.toFixed(2)}</p>
+            <p className="text-xs text-gray-400 line-through">
+              RRP ${rrp.toFixed(2)}
+            </p>
           )}
           <p className="text-base font-bold text-orange-600">
             ${price.toFixed(2)}

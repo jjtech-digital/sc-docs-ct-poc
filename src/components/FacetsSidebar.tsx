@@ -80,7 +80,7 @@ export function FacetsSidebar({
   return (
     <>
       <div
-        className={`fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden transition-opacity ${
+        className={`fixed inset-0 bg-opacity-50 z-40 lg:hidden transition-opacity ${
           isOpen
             ? "opacity-100 pointer-events-auto"
             : "opacity-0 pointer-events-none"

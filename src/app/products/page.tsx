@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import {
   InstantSearch,
   Pagination,
-  SortBy,
   Stats,
   Configure,
 } from "react-instantsearch-dom";
@@ -16,15 +15,14 @@ import { searchClient } from "@/lib/algoliaClient";
 const ProductListingPage = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [facetFilters, setFacetFilters] = useState<string[]>([]);
-console.log("facetFilters", facetFilters);
 
   return (
     <InstantSearch indexName="dev_safetydocs" searchClient={searchClient}>
-    <Configure
-  facets={["*"]}
-  maxValuesPerFacet={20}
-  facetFilters={facetFilters.length ? facetFilters : undefined}
-/>
+      <Configure
+        facets={["*"]}
+        maxValuesPerFacet={20}
+        facetFilters={facetFilters.length ? facetFilters : undefined}
+      />
 
 
       <div className="max-w-[1920px] m-auto px-4 py-8 w-full">
@@ -50,9 +48,8 @@ console.log("facetFilters", facetFilters);
         </button>
 
         <div
-          className={`min-h-screen bg-[#f6f2ea] flex max-w-[1920px] m-auto px-4 py-8 w-full gap-4 ${
-            showFilters ? "flex-row" : "flex-col"
-          }`}
+          className={`min-h-screen bg-[#f6f2ea] flex max-w-[1920px] m-auto px-4 py-8 w-full gap-4 ${showFilters ? "flex-row" : "flex-col"
+            }`}
         >
           {showFilters && (
             <FacetsDebugger
@@ -72,21 +69,7 @@ console.log("facetFilters", facetFilters);
                   },
                 }}
               />
-              <SortBy
-                defaultRefinement="dev_safetydocs"
-                items={[
-                  { value: "dev_safetydocs", label: "Recommended" },
-                  {
-                    value: "dev_safetydocs_price_asc",
-                    label: "Price: Low to High",
-                  },
-                  {
-                    value: "dev_safetydocs_price_desc",
-                    label: "Price: High to Low",
-                  },
-                ]}
-                className="ml-auto"
-              />
+
             </div>
 
             <HitsWithSkeleton />
