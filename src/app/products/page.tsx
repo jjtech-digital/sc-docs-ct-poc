@@ -16,14 +16,16 @@ import { searchClient } from "@/lib/algoliaClient";
 const ProductListingPage = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [facetFilters, setFacetFilters] = useState<string[]>([]);
+console.log("facetFilters", facetFilters);
 
   return (
     <InstantSearch indexName="dev_safetydocs" searchClient={searchClient}>
-      <Configure
-        facets={["*"]}
-        maxValuesPerFacet={20}
-        facetFilters={facetFilters.join(" AND ") || undefined}
-      />
+    <Configure
+  facets={["*"]}
+  maxValuesPerFacet={20}
+  facetFilters={facetFilters.length ? facetFilters : undefined}
+/>
+
 
       <div className="max-w-[1920px] m-auto px-4 py-8 w-full">
         <button
@@ -54,7 +56,7 @@ const ProductListingPage = () => {
         >
           {showFilters && (
             <FacetsDebugger
-              showFilterClass="your-custom-class-if-needed"
+              showFilterClass=""
               isOpen={showFilters}
               onClose={() => setShowFilters(false)}
               onFiltersChange={setFacetFilters}

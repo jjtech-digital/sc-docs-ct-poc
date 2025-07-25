@@ -24,36 +24,37 @@ export function FacetsSidebar({
     {}
   );
   console.log("facets", facets);
-  
+
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
-    const keys = Object.keys(facets).sort();
-    setOpenSections(
-      keys.reduce<Record<string, boolean>>((acc, key, idx) => {
-        acc[key] = idx === 0;
-        return acc;
-      }, {})
-    );
-  }, [facets]);
+    if (Object.keys(openSections).length === 0) {
+      const keys = Object.keys(facets).sort();
+      setOpenSections(
+        keys.reduce<Record<string, boolean>>((acc, key, idx) => {
+          acc[key] = idx === 0;
+          return acc;
+        }, {})
+      );
+    }
+  }, [facets, openSections]);
 
   const handleCheck = (facetKey: string, facetValue: string) => {
-  const newCheckedFacets = { ...checkedFacets };
-  const currentSet = new Set(checkedFacets[facetKey] || []);
-  if (currentSet.has(facetValue)) {
-    currentSet.delete(facetValue);
-    if (currentSet.size === 0) {
-      delete newCheckedFacets[facetKey];
+    const newCheckedFacets = { ...checkedFacets };
+    const currentSet = new Set(checkedFacets[facetKey] || []);
+    if (currentSet.has(facetValue)) {
+      currentSet.delete(facetValue);
+      if (currentSet.size === 0) {
+        delete newCheckedFacets[facetKey];
+      } else {
+        newCheckedFacets[facetKey] = currentSet;
+      }
     } else {
+      currentSet.add(facetValue);
       newCheckedFacets[facetKey] = currentSet;
     }
-  } else {
-    currentSet.add(facetValue);
-    newCheckedFacets[facetKey] = currentSet;
-  }
-  onFacetChange(newCheckedFacets);
-};
-
+    onFacetChange(newCheckedFacets);
+  };
 
   const handleToggleExpand = (facetKey: string) => {
     setExpandedFacets((prev) => ({

@@ -57,7 +57,7 @@ export const Hit = ({ hit }: HitProps) => {
 
   return (
     <Link href={`/products/${slug}`} className="block">
-      <div className="relative bg-white border rounded-lg shadow-sm p-4 flex flex-col h-full hover:shadow-lg transition">
+      <div className="relative bg-white border rounded-lg shadow-sm p-4 flex flex-col h-auto hover:shadow-lg transition">
         {badge && (
           <span
             className={`absolute left-2 top-2 px-2 py-0.5 rounded text-xs font-bold ${

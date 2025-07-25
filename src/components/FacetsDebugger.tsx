@@ -3,51 +3,57 @@ import { fetchFacets } from "@/lib/algoliaClient";
 import { FacetsSidebar } from "./FacetsSidebar";
 
 type FacetsDebuggerProps = {
-  showFilterClass?: string;
+  onFiltersChange: (filters: string[]) => void;
   isOpen?: boolean;
   onClose?: () => void;
-  onFiltersChange: (filters: string[]) => void;
+  showFilterClass?: string;
 };
 
 export default function FacetsDebugger({
-  showFilterClass = "",
+  onFiltersChange,
   isOpen = true,
   onClose,
-  onFiltersChange,
+  showFilterClass = "",
 }: FacetsDebuggerProps) {
-  const [checkedFacets, setCheckedFacets] = useState<
-    Record<string, Set<string>>
-  >({});
-  const [facets, setFacets] = useState<Record<string, Record<string, number>>>(
-    {}
-  );
+  const [facets, setFacets] = useState<Record<string, Record<string, number>>>({});
+  const [checkedFacets, setCheckedFacets] = useState<Record<string, Set<string>>>({});
+
   useEffect(() => {
     fetchFacets().then((result) => {
-      if (result) {
-        setFacets(result);
-      }
+      setFacets(result ?? {});
     });
   }, []);
 
-  useEffect(() => {
-    const facetFilters = Object.entries(checkedFacets).flatMap(
-      ([facet, values]) =>
-        Array.from(values).map((value) => `${facet}:${value}`)
-    );
+useEffect(() => {
+  const facetFilters = Object.entries(checkedFacets).flatMap(
+    ([facet, values]) =>
+      Array.from(values).map((value) => `${facet}:${value}`)
+  );
 
-    fetchFacets(facetFilters).then((filteredFacets) => {
+  if (onFiltersChange) {
+    onFiltersChange(facetFilters);
+  }
+
+  fetchFacets(facetFilters)
+    .then((filteredFacets) => {
       setFacets(filteredFacets ?? {});
+    })
+    .catch((error) => {
+      console.error("Error fetching filtered facets", error);
+      setFacets({});
     });
-  }, [checkedFacets, onFiltersChange]);
+}, [checkedFacets, onFiltersChange]);
+
+  
 
   return (
     <FacetsSidebar
       facets={facets}
       checkedFacets={checkedFacets}
       onFacetChange={setCheckedFacets}
-      showFilterClass={showFilterClass}
       isOpen={isOpen}
       onClose={onClose}
+      showFilterClass={showFilterClass}
     />
   );
 }
