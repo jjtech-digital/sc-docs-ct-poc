@@ -21,9 +21,8 @@ const ProductListingPage = () => {
       <Configure
         facets={["*"]}
         maxValuesPerFacet={20}
-        facetFilters={facetFilters.length ? facetFilters : undefined}
+        facetFilters={facetFilters.length > 0 ? facetFilters : undefined}
       />
-
 
       <div className="max-w-[1920px] m-auto px-4 py-8 w-full">
         <button
@@ -48,8 +47,9 @@ const ProductListingPage = () => {
         </button>
 
         <div
-          className={`min-h-screen bg-[#f6f2ea] flex max-w-[1920px] m-auto px-4 py-8 w-full gap-4 ${showFilters ? "flex-row" : "flex-col"
-            }`}
+          className={`min-h-screen bg-[#f6f2ea] flex max-w-[1920px] m-auto px-4 py-8 w-full gap-4 ${
+            showFilters ? "flex-row" : "flex-col"
+          }`}
         >
           {showFilters && (
             <FacetsDebugger
@@ -69,9 +69,7 @@ const ProductListingPage = () => {
                   },
                 }}
               />
-
             </div>
-
             <HitsWithSkeleton />
             <CustomFacetLogger />
 

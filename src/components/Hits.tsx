@@ -72,7 +72,7 @@ export const Hit = ({ hit }: HitProps) => {
           </span>
         )}
         <button
-          className="absolute top-2 right-2 z-10"
+          className="hidden absolute top-2 right-2 z-10"
           aria-label="Toggle wishlist"
           onClick={(e) => {
             e.preventDefault();
