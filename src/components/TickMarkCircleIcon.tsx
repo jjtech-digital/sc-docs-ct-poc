@@ -10,11 +10,11 @@ interface TickMarkCircleIconProps {
 }
 
 const TickMarkCircleIcon: React.FC<TickMarkCircleIconProps> = ({
-  className,
-  width,
-  height,
-  color,
-  strokeWidth,
+  className = "",
+  color = "currentColor",
+  strokeWidth = 1.5,
+  width = 24,
+  height = 24,
   viewBox = "0 0 24 24",
 }) => (
   <svg
