@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import {
   InstantSearch,
   Pagination,
-  SortBy,
   Stats,
   Configure,
 } from "react-instantsearch-dom";
@@ -15,10 +14,15 @@ import { searchClient } from "@/lib/algoliaClient";
 
 const ProductListingPage = () => {
   const [showFilters, setShowFilters] = useState(false);
+  const [facetFilters, setFacetFilters] = useState<string[]>([]);
 
   return (
-    <InstantSearch indexName="dev_Products" searchClient={searchClient}>
-      <Configure facets={["*"]} maxValuesPerFacet={20} />
+    <InstantSearch indexName="dev_safetydocs" searchClient={searchClient}>
+      <Configure
+        facets={["*"]}
+        maxValuesPerFacet={20}
+        facetFilters={facetFilters.length > 0 ? facetFilters : undefined}
+      />
 
       <div className="max-w-[1920px] m-auto px-4 py-8 w-full">
         <button
@@ -49,9 +53,10 @@ const ProductListingPage = () => {
         >
           {showFilters && (
             <FacetsDebugger
-              showFilterClass="your-custom-class-if-needed"
+              showFilterClass=""
               isOpen={showFilters}
               onClose={() => setShowFilters(false)}
+              onFiltersChange={setFacetFilters}
             />
           )}
 
@@ -64,23 +69,7 @@ const ProductListingPage = () => {
                   },
                 }}
               />
-              <SortBy
-                defaultRefinement="dev_Products"
-                items={[
-                  { value: "dev_Products", label: "Recommended" },
-                  {
-                    value: "dev_Products_price_asc",
-                    label: "Price: Low to High",
-                  },
-                  {
-                    value: "dev_Products_price_desc",
-                    label: "Price: High to Low",
-                  },
-                ]}
-                className="ml-auto"
-              />
             </div>
-
             <HitsWithSkeleton />
             <CustomFacetLogger />
 
