@@ -45,8 +45,8 @@ export default function OrderConfirmation({ order }: OrderConfirmationProps) {
         <div className="flex items-center mb-6">
           <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mr-3">
             <TickMarkCircleIcon
-              width={"28"}
-              height={"28"}
+              width={28}
+              height={28}
               className="bg-[#618B73] rounded-full"
               color="white"
             />
