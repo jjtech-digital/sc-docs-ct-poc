@@ -14,7 +14,12 @@ export const OrderConfirmation = () => {
     <div className="max-w-3xl mx-auto p-6 bg-white rounded-lg shadow-md my-10">
       <div className="flex flex-col items-center justify-center text-center mb-8">
         <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mb-4">
-          <TickMarkCircleIcon />
+          <TickMarkCircleIcon
+            width={28}
+            height={28}
+            className="bg-[#618B73] rounded-full"
+            color="white"
+          />
         </div>
         <h1 className="text-3xl font-bold text-gray-800 mb-2">
           Thank You for Your Order!

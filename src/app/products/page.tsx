@@ -47,7 +47,7 @@ const ProductListingPage = () => {
         </button>
 
         <div
-          className={`min-h-screen bg-[#f6f2ea] flex max-w-[1920px] m-auto px-4 py-8 w-full gap-4 ${
+          className={`min-h-screen bg-[#f6f2ea] flex m-auto px-4 py-8 w-full gap-4 ${
             showFilters ? "flex-row" : "flex-col"
           }`}
         >
