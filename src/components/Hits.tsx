@@ -46,6 +46,11 @@ export const Hit = ({ hit }: HitProps) => {
   const rrpRaw = hit.rrp;
   const price = priceRaw ? priceRaw / 100 : 0;
   const rrp = rrpRaw ? rrpRaw / 100 : 0;
+
+  if (price <= 0) {
+    return null;
+  }
+
   const savings = rrp && price ? Math.round(((rrp - price) / rrp) * 100) : 0;
   const badge =
     hit.badge || (savings >= 50 ? "HOT DEAL" : savings > 0 ? "SALE" : null);

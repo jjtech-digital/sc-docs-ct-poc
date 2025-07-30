@@ -1,5 +1,15 @@
 export interface ProductProps {
   id: string;
+  variants?: Array<{
+    images?: string[];
+    prices?: {
+      AUD?: {
+        min?: number;
+        priceValues?: Array<{ value: number }>;
+      };
+    };
+  }>;
+  objectID?: string;
   image: string;
   description?: {
     "en-US": string;
