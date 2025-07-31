@@ -59,8 +59,10 @@ export const meClient = (token: string) => {
     .withProjectKey(projectKey)
     .withExistingTokenFlow(token, existingTokenMiddlewareOptions)
     .withHttpMiddleware(httpMiddlewareOptions)
-    .withUserAgentMiddleware()
+    .withLoggerMiddleware()
     .build();
 
-  return createApiBuilderFromCtpClient(client).withProjectKey({ projectKey });
+  return createApiBuilderFromCtpClient(client)
+    .withProjectKey({ projectKey })
+    .me();
 };

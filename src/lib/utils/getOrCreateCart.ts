@@ -13,8 +13,7 @@ export async function getOrCreateCart({
   token,
 }: IRetrieveCart): Promise<Cart | null> {
   if (!anonymousId && !customerId) return null;
-
-  const mClient = meClient(token);
+  const mClient = meClient(`Bearer ${token}`);
   if (!mClient) {
     throw new Error(
       "Invalid or missing token; cannot create commercetools client"
@@ -23,11 +22,10 @@ export async function getOrCreateCart({
 
   try {
     // Try to get the active cart
-    const cartResponse = await mClient.me().activeCart().get().execute();
+    const cartResponse = await mClient.activeCart().get().execute();
     if (!cartResponse.body) {
       // No active cart, create one
       const createResponse = await mClient
-        .me()
         .carts()
         .post({
           body: {
@@ -42,28 +40,18 @@ export async function getOrCreateCart({
     }
     return cartResponse.body;
   } catch (error: unknown) {
-    if (
-      typeof error === "object" &&
-      error !== null &&
-      "statusCode" in error &&
-      (error as { statusCode?: number }).statusCode === 404
-    ) {
-      // Active cart not found, create one
-      const createResponse = await mClient
-        .me()
-        .carts()
-        .post({
-          body: {
-            currency: "AUD",
-            country: "AU",
-            ...(anonymousId ? { anonymousId } : {}),
-            ...(customerId ? { customerId } : {}),
-          },
-        })
-        .execute();
-      return createResponse.body ?? null;
-    }
-    console.error("Error in getOrCreateCart:", error);
-    throw error;
+    // Active cart not found, create one
+    const createResponse = await mClient
+      .carts()
+      .post({
+        body: {
+          currency: "AUD",
+          country: "AU",
+          ...(anonymousId ? { anonymousId } : {}),
+          ...(customerId ? { customerId } : {}),
+        },
+      })
+      .execute();
+    return createResponse.body ?? null;
   }
 }
