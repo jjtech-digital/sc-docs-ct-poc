@@ -13,6 +13,12 @@ async function handler(req: NextRequest): Promise<NextResponse> {
     const user = parseJSON(cookies.user, {}) as User;
 
     const { productId, variantId, quantity } = await req.json();
+    if (!productId) {
+      return NextResponse.json(
+        { error: "Product ID is required." },
+        { status: 400 }
+      );
+    }
 
     const cart = await getOrCreateCart({
       anonymousId: user?.anonymousId,
