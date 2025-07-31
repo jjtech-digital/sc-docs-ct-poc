@@ -41,6 +41,7 @@ export async function getOrCreateCart({
     return cartResponse.body;
   } catch (error: unknown) {
     // Active cart not found, create one
+    console.log("No active cart found, creating a new one:", error);
     const createResponse = await mClient
       .carts()
       .post({
