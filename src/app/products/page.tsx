@@ -24,7 +24,7 @@ const ProductListingPage = () => {
         facetFilters={facetFilters.length > 0 ? facetFilters : undefined}
       />
 
-      <div className="max-w-[1920px] m-auto px-4 py-8 w-full">
+      <div className="max-w-[1920px] bg-gradient-to-br from-[#f4f5fc] via-[#d8deff] to-[#f6f8fe] m-auto px-4 py-8 w-full">
         <button
           className="font-semibold text-sm flex items-center mb-4"
           onClick={() => setShowFilters((f) => !f)}
@@ -47,7 +47,7 @@ const ProductListingPage = () => {
         </button>
 
         <div
-          className={`min-h-screen bg-[#f6f2ea] flex m-auto px-4 py-8 w-full gap-4 ${
+          className={`h-full flex m-auto px-4 py-8 w-full gap-4 ${
             showFilters ? "flex-row" : "flex-col"
           }`}
         >

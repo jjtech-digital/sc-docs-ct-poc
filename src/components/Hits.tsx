@@ -112,7 +112,7 @@ export const Hit = ({ hit }: HitProps) => {
           </p>
         )}
         {inStock && (
-          <span className="inline-block bg-green-100 text-green-700 text-xs rounded px-2 py-0.5 mb-2">
+          <span className="w-fit inline-block bg-green-100 text-green-700 text-xs rounded px-2 py-0.5 mb-2">
             In Stock
           </span>
         )}
