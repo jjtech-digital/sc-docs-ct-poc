@@ -65,7 +65,7 @@ const Header = () => {
           px-4
           flex flex-col
           md:flex-row md:items-center md:justify-between
-          h-auto md:h-16
+          h-auto md:h-20
         "
       >
         <div className="flex items-center justify-between w-full md:hidden py-2">
