@@ -7,6 +7,7 @@ import { CartProvider } from "@/context/CartContext";
 import { ToastContainer } from "react-toastify";
 import QueryClientProviderWrapper from "./QueryClientProviderWrapper";
 import TawkScript from "@/scripts/TawkScript";
+import TokenCacheManager from "@/components/TokenCacheManager";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -35,6 +36,7 @@ export default function RootLayout({
       >
         <QueryClientProviderWrapper>
           <CartProvider>
+            <TokenCacheManager />
             <ToastContainer />
             <Header />
             <div className="pb-16 h-fill-available bg-gradient-to-br from-[#f4f5fc] via-[#d8deff] to-[#f6f8fe]">
