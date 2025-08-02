@@ -68,7 +68,7 @@ const ProductCard = ({ product }: { product: ProductProps }) => {
           {`$${(centAmount / 100).toFixed(2)}`}
         </p>
         <button
-          onClick={() => addToCart(product.id)}
+          onClick={() => addToCart(product.objectID || id)}
           className="
             mt-auto 
             bg-indigo-600 text-white font-semibold py-2 rounded-lg
