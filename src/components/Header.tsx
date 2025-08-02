@@ -39,18 +39,11 @@ const Header = () => {
   const handleLogout = async () => {
     try {
       setIsLoggingOut(true);
-
       const response = await fetch("/api/auth/logout", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
       });
-
-      if (!response.ok) {
-        throw new Error("Logout failed");
-      }
-
+      if (!response.ok) throw new Error("Logout failed");
       Cookies.remove("user");
       localStorage.removeItem("user");
       setIsLoggedIn(false);
@@ -62,83 +55,181 @@ const Header = () => {
     }
   };
 
+  const handleUserMenuToggle = () => setShowUserMenu((prev) => !prev);
+
   return (
     <header className="w-full bg-[#6559ff] text-white shadow-sm">
-      <div className="flex justify-between items-center h-16 px-4 max-w-[1920px] mx-auto">
-        <Link
-          href="/"
-          className="text-lg md:text-xl font-semibold whitespace-nowrap"
-        >
-          CT Checkout Demo
-        </Link>
-
-        <div className="w-full max-w-md flex flex-1 mx-4">
-          <QuickSearch />
+      <div
+        className="
+          max-w-[1920px] mx-auto
+          px-4
+          flex flex-col
+          md:flex-row md:items-center md:justify-between
+          h-auto md:h-16
+        "
+      >
+        <div className="flex items-center justify-between w-full md:hidden py-2">
+          <Link
+            href="/"
+            className="text-lg md:text-xl font-semibold whitespace-nowrap"
+          >
+            CT Checkout Demo
+          </Link>
         </div>
 
-        <div className="flex items-center space-x-4 relative">
-          <Link href="/cart" className="relative">
-            <button
-              className="flex items-center justify-center hover:opacity-90 transition p-2 rounded"
-              aria-label="Cart"
+        <div className="hidden md:grid grid-cols-3 items-center w-full h-16">
+          <div className="flex items-center">
+            <Link
+              href="/"
+              className="text-lg md:text-xl font-semibold whitespace-nowrap"
             >
-              <CartIcon />
-              {itemCount > 0 && (
-                <span className="absolute top-0 right-0 -mt-1 -mr-1 bg-red-600 text-white text-xs font-semibold rounded-full w-5 h-5 flex items-center justify-center">
-                  {itemCount}
-                </span>
-              )}
-            </button>
-          </Link>
-
-          <div
-            className="relative"
-            onMouseEnter={() => setShowUserMenu(true)}
-            onMouseLeave={() => setShowUserMenu(false)}
-          >
-            <button
-              className="flex items-center justify-center hover:opacity-90 transition p-2 rounded"
-              onClick={() => setShowUserMenu((prev) => !prev)}
-              aria-label="User menu"
-            >
-              <UserIcon />
-            </button>
-
-            {showUserMenu && (
-              <div className="absolute top-10 right-0 bg-white text-black w-40 rounded-lg shadow-lg py-2 z-20">
-                {isLoggedIn ? (
-                  <>
-                    <div className="px-4 py-2 border-b border-gray-200">
-                      <span className="text-sm font-medium">
-                        Hi {parsedUserData?.firstName || "User"} 👋
-                      </span>
-                    </div>
-                    <button
-                      onClick={handleLogout}
-                      disabled={isLoggingOut}
-                      className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
-                    >
-                      Logout
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <Link href="/login">
-                      <div className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-100 border-b border-gray-200">
-                        <LoginIcon />
-                        <span>Login</span>
-                      </div>
-                    </Link>
-                    <Link href="/signup">
-                      <div className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-100">
-                        <SignupIcon />
-                        <span>Signup</span>
-                      </div>
-                    </Link>
-                  </>
+              CT Checkout Demo
+            </Link>
+          </div>
+          <div className="flex justify-center">
+            <div className="w-full max-w-[600px]">
+              <QuickSearch />
+            </div>
+          </div>
+          <div className="flex justify-end items-center space-x-4 relative">
+            <Link href="/cart" className="relative">
+              <button
+                className="flex items-center justify-center hover:opacity-90 transition p-2 rounded"
+                aria-label="Cart"
+              >
+                <CartIcon />
+                {itemCount > 0 && (
+                  <span className="absolute top-0 right-0 -mt-1 -mr-1 bg-red-600 text-white text-xs font-semibold rounded-full w-5 h-5 flex items-center justify-center">
+                    {itemCount}
+                  </span>
                 )}
-              </div>
-            )}
+              </button>
+            </Link>
+            <div
+              className="relative"
+              onMouseEnter={() => setShowUserMenu(true)}
+              onMouseLeave={() => setShowUserMenu(false)}
+            >
+              <button
+                className="flex items-center justify-center hover:opacity-90 transition p-2 rounded"
+                onClick={handleUserMenuToggle}
+                aria-label="User menu"
+              >
+                <UserIcon />
+              </button>
+              {showUserMenu && (
+                <div className="absolute top-10 right-0 bg-white text-black w-40 rounded-lg shadow-lg py-2 z-20">
+                  {isLoggedIn ? (
+                    <>
+                      <div className="px-4 py-2 border-b border-gray-200">
+                        <span className="text-sm font-medium">
+                          Hi {parsedUserData?.firstName || "User"} 👋
+                        </span>
+                      </div>
+                      <button
+                        onClick={handleLogout}
+                        disabled={isLoggingOut}
+                        className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
+                      >
+                        Logout
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <Link href="/login">
+                        <div
+                          className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-100 border-b border-gray-200 cursor-pointer"
+                          onClick={() => setShowUserMenu(false)}
+                        >
+                          <LoginIcon />
+                          <span>Login</span>
+                        </div>
+                      </Link>
+                      <Link href="/signup">
+                        <div
+                          className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-100 cursor-pointer"
+                          onClick={() => setShowUserMenu(false)}
+                        >
+                          <SignupIcon />
+                          <span>Signup</span>
+                        </div>
+                      </Link>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-3 mt-2 md:hidden w-full">
+          <div>
+            <QuickSearch />
+          </div>
+          <div className="flex items-center justify-end gap-4">
+            <Link href="/cart" className="relative">
+              <button
+                className="flex items-center justify-center hover:opacity-90 p-2 rounded"
+                aria-label="Cart"
+              >
+                <CartIcon />
+                {itemCount > 0 && (
+                  <span className="absolute top-0 right-0 -mt-1 -mr-1 bg-red-600 text-white text-xs font-semibold rounded-full w-5 h-5 flex items-center justify-center">
+                    {itemCount}
+                  </span>
+                )}
+              </button>
+            </Link>
+            <div className="relative">
+              <button
+                className="flex items-center justify-center hover:opacity-90 transition p-2 rounded"
+                onClick={handleUserMenuToggle}
+                aria-label="User menu"
+              >
+                <UserIcon />
+              </button>
+              {showUserMenu && (
+                <div className="absolute top-10 right-0 bg-white text-black w-40 rounded-lg shadow-lg py-2 z-20">
+                  {isLoggedIn ? (
+                    <>
+                      <div className="px-4 py-2 border-b border-gray-200">
+                        <span className="text-sm font-medium">
+                          Hi {parsedUserData?.firstName || "User"} 👋
+                        </span>
+                      </div>
+                      <button
+                        onClick={handleLogout}
+                        disabled={isLoggingOut}
+                        className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
+                      >
+                        Logout
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <Link href="/login">
+                        <div
+                          className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-100 border-b border-gray-200 cursor-pointer"
+                          onClick={() => setShowUserMenu(false)}
+                        >
+                          <LoginIcon />
+                          <span>Login</span>
+                        </div>
+                      </Link>
+                      <Link href="/signup">
+                        <div
+                          className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-100 cursor-pointer"
+                          onClick={() => setShowUserMenu(false)}
+                        >
+                          <SignupIcon />
+                          <span>Signup</span>
+                        </div>
+                      </Link>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
