@@ -105,7 +105,6 @@ export const Hit = ({ hit }: HitProps) => {
           fill
           sizes="(max-width: 768px) 100vw, 300px"
           className="object-contain p-2 transition-transform duration-500 group-hover:scale-105"
-          priority={true}
           unoptimized={image === "/placeholder.png"}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 group-hover:opacity-30 transition-opacity rounded-t-2xl pointer-events-none" />
