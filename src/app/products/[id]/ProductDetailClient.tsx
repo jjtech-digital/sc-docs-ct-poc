@@ -39,7 +39,7 @@ const ProductDetailClient = ({ id }: { id: string }) => {
   const handleAddToCart = async () => {
     if (!product?.id) return;
     setIsAddingToCart(true);
-    await addToCart(product.id);
+    await addToCart(product?.id);
     setTimeout(() => setIsAddingToCart(false), 600);
   };
 

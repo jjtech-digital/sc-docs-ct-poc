@@ -24,7 +24,7 @@ export const CustomHits = connectHits(
     }
 
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4 md:gap-5 transition-all duration-300">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 md:gap-5 transition-all duration-300">
         {hits.map((hit, index) => (
           <Hit key={hit.objectID || index} hit={hit} />
         ))}

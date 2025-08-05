@@ -7,7 +7,29 @@ body {
 .ais-Pagination-list {
   display: flex;
   gap: 1rem;
+  flex-wrap: wrap
 }
+
+.ais-Pagination {
+  @apply flex gap-2 mt-4 justify-center items-center;
+}
+
+.ais-Pagination-item {
+  @apply border rounded-md text-sm text-gray-700 transition;
+}
+
+.ais-Pagination-item--selected {
+  @apply bg-indigo-600 text-white border-indigo-600;
+}
+
+.ais-Pagination-item--disabled {
+  @apply opacity-50 cursor-not-allowed;
+}
+
+.ais-Pagination-link {
+  @apply px-4 py-2 block;
+}
+
 
 @media screen and (min-width: 640px) {
   .h-fill-available {

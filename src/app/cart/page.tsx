@@ -7,6 +7,10 @@ import { CartItem } from "@/types/types";
 import Cookies from "js-cookie";
 import { checkoutFlow } from "@commercetools/checkout-browser-sdk";
 import { useRouter } from "next/navigation";
+import { DEFAULT_BLUR_DATA_URL } from "@/constants";
+import ImagePlaceholderIcon from "@/icons/ImagePlaceholderIcon";
+import SpinnerIcon from "@/icons/SpinnerIcon";
+import TrashIcon from "@/icons/TrashIcon";
 
 function generateOrderNumber() {
   const randomPart = Math.random().toString(36).substring(2, 6).toUpperCase();
@@ -209,14 +213,149 @@ export default function CartPage() {
                 return (
                   <div key={item.id}>
                     <div
-                      className={`p-6 transition-all duration-300 ${
+                      className={`p-3 md:p-6 transition-all duration-300 ${
                         isRemoving ? "opacity-50 scale-95" : "hover:bg-gray-50"
                       }`}
                     >
-                      <div className="flex items-center space-x-6">
+                      {/* Mobile Layout */}
+                      <div className="block md:hidden">
+                        <div className="flex items-start space-x-3 mb-3">
+                          {item?.image ? (
+                            <Link href={`/products/${item.id}`}>
+                              <div className="relative w-16 h-16 flex-shrink-0 bg-white rounded-lg border border-gray-200 overflow-hidden group cursor-pointer">
+                                <Image
+                                  width={64}
+                                  height={64}
+                                  src={item.image}
+                                  alt={item.name?.["en-US"] || "Product"}
+                                  className="w-full h-full object-contain p-2 group-hover:scale-110 transition-transform duration-300"
+                                  placeholder="blur"
+                                  blurDataURL={DEFAULT_BLUR_DATA_URL}
+                                />
+                              </div>
+                            </Link>
+                          ) : (
+                            <div className="relative w-16 h-16 flex-shrink-0 bg-gray-200 rounded-lg border border-gray-200 overflow-hidden animate-pulse">
+                              <div className="w-full h-full flex items-center justify-center">
+                                <ImagePlaceholderIcon />
+                              </div>
+                            </div>
+                          )}
+
+                          <div className="flex-grow min-w-0">
+                            <h3 className="text-sm font-semibold text-gray-900 mb-1 line-clamp-2">
+                              {item.name?.["en-US"]}
+                            </h3>
+
+                            <div className="flex items-center space-x-2 mb-2">
+                              {discountedPrice ? (
+                                <>
+                                  <span className="text-xs text-gray-500 line-through">
+                                    ${originalPrice?.toFixed(2)}
+                                  </span>
+                                  <span className="text-sm font-bold text-indigo-600">
+                                    ${discountedPrice.toFixed(2)}
+                                  </span>
+                                  <span className="bg-red-100 text-red-700 text-xs px-1.5 py-0.5 rounded-full font-medium">
+                                    Sale
+                                  </span>
+                                </>
+                              ) : (
+                                <span className="text-sm font-bold text-gray-900">
+                                  ${originalPrice?.toFixed(2)}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="text-right flex-shrink-0">
+                            <p className="text-lg font-bold text-gray-900">
+                              $
+                              {(item?.totalPrice?.centAmount / 100)?.toFixed(2)}
+                            </p>
+                            <p className="text-xs text-gray-500">Total</p>
+                          </div>
+                        </div>
+
+                        {/* Mobile Controls Row */}
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-2">
+                            <div className="flex items-center border-2 border-gray-200 rounded-lg overflow-hidden bg-white shadow-sm">
+                              <button
+                                onClick={() => {
+                                  const newQuantity = Math.max(
+                                    1,
+                                    (quantities[item.id] || item.quantity) - 1
+                                  );
+                                  handleQuantityChange(item.id, newQuantity);
+                                  updateCartQuantity(item.id, newQuantity);
+                                }}
+                                className="w-8 h-8 flex items-center justify-center text-gray-600 hover:bg-gray-100 hover:text-indigo-600 active:bg-gray-200 transition-colors font-semibold text-lg touch-manipulation"
+                                disabled={isRemoving}
+                              >
+                                −
+                              </button>
+                              <input
+                                type="number"
+                                className="w-12 h-8 border-0 text-center focus:ring-0 focus:outline-none font-semibold text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                min={1}
+                                value={quantities[item.id] || item.quantity}
+                                onChange={(e) =>
+                                  handleQuantityChange(
+                                    item.id,
+                                    parseInt(e.target.value) || 1
+                                  )
+                                }
+                                onBlur={() => handleUpdateQuantity(item.id)}
+                                disabled={isRemoving}
+                              />
+                              <button
+                                onClick={() => {
+                                  const newQuantity =
+                                    (quantities[item.id] || item.quantity) + 1;
+                                  handleQuantityChange(item.id, newQuantity);
+                                  updateCartQuantity(item.id, newQuantity);
+                                }}
+                                className="w-8 h-8 flex items-center justify-center text-gray-600 hover:bg-gray-100 hover:text-indigo-600 active:bg-gray-200 transition-colors font-semibold text-lg touch-manipulation"
+                                disabled={isRemoving}
+                              >
+                                +
+                              </button>
+                            </div>
+                            <span className="text-xs text-gray-500">
+                              × each
+                            </span>
+                          </div>
+
+                          <button
+                            onClick={() => handleRemoveItem(item.id)}
+                            disabled={isRemoving}
+                            className="flex items-center space-x-2 text-red-600 hover:text-red-700 hover:bg-red-50 px-2 py-1.5 rounded-lg transition-all duration-200 disabled:opacity-50"
+                          >
+                            {isRemoving ? (
+                              <>
+                                <SpinnerIcon />
+                                <span className="text-xs font-medium">
+                                  Removing...
+                                </span>
+                              </>
+                            ) : (
+                              <>
+                                <TrashIcon />
+                                <span className="text-xs font-medium">
+                                  Remove
+                                </span>
+                              </>
+                            )}
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Desktop Layout */}
+                      <div className="hidden md:flex items-center space-x-6">
                         {item?.image && (
                           <Link href={`/products/${item.id}`}>
-                            <div className="relative w-24 h-24 flex-shrink-0 bg-white rounded-xl border border-gray-200 overflow-hidden group cursor-pointer">
+                            <div className="relative w-24 h-[124px] flex-shrink-0 bg-white rounded-xl border border-gray-200 overflow-hidden group cursor-pointer">
                               <Image
                                 width={96}
                                 height={96}
@@ -254,7 +393,7 @@ export default function CartPage() {
                           </div>
 
                           <div className="flex items-center space-x-4">
-                            <div className="flex items-center border-2 border-gray-200 rounded-xl overflow-hidden bg-white">
+                            <div className="flex items-center border-2 border-gray-200 rounded-xl overflow-hidden bg-white shadow-sm">
                               <button
                                 onClick={() => {
                                   const newQuantity = Math.max(
@@ -264,14 +403,14 @@ export default function CartPage() {
                                   handleQuantityChange(item.id, newQuantity);
                                   updateCartQuantity(item.id, newQuantity);
                                 }}
-                                className="w-10 h-10 flex items-center justify-center text-gray-600 hover:bg-gray-100 hover:text-indigo-600 transition-colors font-semibold"
+                                className="w-10 h-10 flex items-center justify-center text-gray-600 hover:bg-gray-100 hover:text-indigo-600 active:bg-gray-200 transition-colors font-semibold text-xl touch-manipulation"
                                 disabled={isRemoving}
                               >
                                 −
                               </button>
                               <input
                                 type="number"
-                                className="w-16 h-10 border-0 text-center focus:ring-0 focus:outline-none font-semibold [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                className="w-16 h-10 border-0 text-center focus:ring-0 focus:outline-none font-semibold text-base [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                 min={1}
                                 value={quantities[item.id] || item.quantity}
                                 onChange={(e) =>
@@ -290,13 +429,13 @@ export default function CartPage() {
                                   handleQuantityChange(item.id, newQuantity);
                                   updateCartQuantity(item.id, newQuantity);
                                 }}
-                                className="w-10 h-10 flex items-center justify-center text-gray-600 hover:bg-gray-100 hover:text-indigo-600 transition-colors font-semibold"
+                                className="w-10 h-10 flex items-center justify-center text-gray-600 hover:bg-gray-100 hover:text-indigo-600 active:bg-gray-200 transition-colors font-semibold text-xl touch-manipulation"
                                 disabled={isRemoving}
                               >
                                 +
                               </button>
                             </div>
-                            <span className="text-sm text-gray-500">
+                            <span className="text-sm text-gray-500 whitespace-nowrap">
                               × each
                             </span>
                           </div>

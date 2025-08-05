@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { HeartIcon } from "./HeartIcon";
 import { StarRating } from "./StarRating";
+import { useCart } from "@/context/CartContext";
 
 const locale = "en-GB";
 
@@ -36,6 +37,7 @@ type HitProps = {
 
 export const Hit = ({ hit }: HitProps) => {
   const [liked, setLiked] = useState(false);
+  const { addToCart } = useCart();
 
   const name = hit.name?.[locale] ?? "Unnamed Product";
   const slug = hit.slug?.[locale] ?? hit.objectID;
@@ -61,78 +63,140 @@ export const Hit = ({ hit }: HitProps) => {
   const inStock = hit.variants?.[0]?.isInStock;
 
   return (
-    <Link
-      href={`/products/${slug}`}
-      className="block h-full max-h-[380px] min-h-[380px]"
+    <div
+      className="
+    w-full md:max-w-xs
+    bg-white rounded-2xl border border-gray-100
+    shadow-md transition-transform duration-300 hover:-translate-y-1 hover:shadow-xl
+    flex flex-col relative
+  "
+      key={hit.objectID}
     >
-      <div className="bg-white border rounded-lg shadow-sm p-4 flex flex-col hover:shadow-lg transition max-w-xs h-full max-h-[380px] min-h-[380px]">
-        {" "}
-        {badge && (
-          <span
-            className={`absolute left-2 top-2 px-2 py-0.5 rounded text-xs font-bold ${
-              badge === "HOT DEAL" ? "bg-[#ff6e0d]" : "bg-[#e54747]"
-            } text-white z-10`}
-          >
-            {badge}
-          </span>
-        )}
-        <button
-          className="hidden absolute top-2 right-2 z-10"
-          aria-label="Toggle wishlist"
-          onClick={(e) => {
-            e.preventDefault();
-            setLiked((l) => !l);
-          }}
+      {badge && (
+        <span
+          className={`absolute left-3 top-3 px-3 py-1 rounded-full text-xs font-bold z-10 shadow-md ${
+            badge === "HOT DEAL"
+              ? "bg-gradient-to-r from-orange-500 to-red-500"
+              : "bg-gradient-to-r from-red-500 to-red-600"
+          } text-white`}
         >
-          <HeartIcon filled={liked} />
-        </button>
+          {badge}
+        </span>
+      )}
+
+      <button
+        className="absolute top-3 right-3 z-10 w-8 h-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center shadow-md hover:bg-white hover:scale-110 transition-all duration-200"
+        aria-label="Toggle wishlist"
+        onClick={(e) => {
+          e.preventDefault();
+          setLiked((l) => !l);
+        }}
+      >
+        <HeartIcon filled={liked} />
+      </button>
+
+      <Link
+        href={`/products/${slug}`}
+        className="group relative block w-full h-64 rounded-t-2xl overflow-hidden bg-gray-50"
+      >
         <Image
           src={image}
           alt={name}
-          width={400}
-          height={144}
-          className="w-full h-36 object-contain bg-[#f9f7f2] rounded mb-3"
+          fill
+          sizes="(max-width: 768px) 100vw, 300px"
+          className="object-contain p-2 transition-transform duration-500 group-hover:scale-105"
           unoptimized={image === "/placeholder.png"}
         />
-        <h3 className="text-sm font-semibold text-gray-900 line-clamp-2 mb-1">
+        <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 group-hover:opacity-30 transition-opacity rounded-t-2xl pointer-events-none" />
+      </Link>
+
+      <div className="p-3 flex flex-col flex-grow">
+        <h3
+          className="
+        text-lg font-semibold text-gray-900 line-clamp-2
+        leading-tight min-h-[2rem]
+      "
+          title={name}
+        >
           {name}
         </h3>
+
         {productType && (
-          <p className="text-xs text-gray-500 mb-1">{productType}</p>
-        )}
-        {(colorLabel || finishLabel) && (
-          <p className="text-xs text-gray-600 mb-1">
-            {colorLabel && <span className="mr-2">Color: {colorLabel}</span>}
-            {finishLabel && <span>Finish: {finishLabel}</span>}
+          <p className="text-sm text-indigo-600 font-medium mb-2">
+            {productType}
           </p>
         )}
+
+        {(colorLabel || finishLabel) && (
+          <div className="flex flex-wrap gap-2 mb-2">
+            {colorLabel && (
+              <span className="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded-full">
+                {colorLabel}
+              </span>
+            )}
+            {finishLabel && (
+              <span className="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded-full">
+                {finishLabel}
+              </span>
+            )}
+          </div>
+        )}
+
         {productSpec && (
-          <p className="text-xs text-gray-500 italic truncate mb-1">
+          <p className="text-xs text-gray-500 italic line-clamp-2 mb-2">
             {productSpec}
           </p>
         )}
+
         {inStock && (
-          <span className="w-fit inline-block bg-green-100 text-green-700 text-xs rounded px-2 py-0.5 mb-2">
-            In Stock
+          <span className="w-fit inline-block bg-green-100 text-green-700 text-xs font-medium rounded-full px-3 py-1 mb-3">
+            ✓ In Stock
           </span>
         )}
-        <StarRating rating={rating} count={reviewCount} />
-        <div className="mt-2">
+
+        <div className="mb-2">
+          <StarRating rating={rating} count={reviewCount} />
+        </div>
+
+        <div className="mb-2">
           {rrp > price && (
-            <p className="text-xs text-gray-400 line-through">
+            <p className="text-sm text-gray-500 line-through mb-1">
               RRP ${rrp.toFixed(2)}
             </p>
           )}
-          <p className="text-base font-bold text-orange-600">
-            ${price.toFixed(2)}
+          <div className="flex items-center gap-2">
+            <p
+              className="
+            text-indigo-600 font-extrabold text-xl
+            bg-gradient-to-r from-indigo-500 via-purple-600 to-indigo-500 bg-clip-text text-transparent
+          "
+            >
+              ${price.toFixed(2)}
+            </p>
             {savings > 0 && (
-              <span className="ml-1 text-xs text-gray-600 font-medium">
-                ({savings}% OFF)
+              <span className="bg-red-100 text-red-700 text-xs px-2 py-1 rounded-full font-medium">
+                {savings}% OFF
               </span>
             )}
-          </p>
+          </div>
         </div>
+
+        <button
+          onClick={() => addToCart(hit.objectID)}
+          className="
+        mt-auto
+        bg-indigo-600 text-white font-semibold py-2.5 rounded-lg
+        shadow-md hover:bg-indigo-700 active:bg-indigo-800
+        focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2
+        transition-colors duration-300
+        cursor-pointer
+        disabled:opacity-50 disabled:cursor-not-allowed
+      "
+          aria-label={`Add ${name} to cart`}
+        >
+          Add to Cart
+        </button>
       </div>
-    </Link>
+    </div>
   );
 };
