@@ -9,6 +9,7 @@ import UserIcon from "@/icons/UserIcon";
 import LoginIcon from "@/icons/LoginIcon";
 import SignupIcon from "@/icons/SignupIcon";
 import QuickSearch from "./QuickSearch";
+import Image from "next/image";
 
 const Header = () => {
   const { cart } = useCart();
@@ -73,7 +74,14 @@ const Header = () => {
             href="/"
             className="text-lg md:text-xl font-semibold whitespace-nowrap"
           >
-            CT Checkout Demo
+            <Image
+              src="https://cdn11.bigcommerce.com/s-u81rarrvlz/images/stencil/500x174/compact_1664193025__32941.original.png"
+              alt="CT Checkout Demo Logo"
+              width={150}
+              height={52}
+              priority
+              className="h-10 w-auto"
+            />
           </Link>
         </div>
 
@@ -83,7 +91,14 @@ const Header = () => {
               href="/"
               className="text-lg md:text-xl font-semibold whitespace-nowrap"
             >
-              CT Checkout Demo
+              <Image
+                src="https://cdn11.bigcommerce.com/s-u81rarrvlz/images/stencil/500x174/compact_1664193025__32941.original.png"
+                alt="CT Checkout Demo Logo"
+                width={150}
+                height={52}
+                priority
+                className="h-10 w-auto"
+              />
             </Link>
           </div>
           <div className="flex justify-center">
