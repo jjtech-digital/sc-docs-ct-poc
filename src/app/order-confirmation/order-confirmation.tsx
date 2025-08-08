@@ -4,7 +4,131 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { OrderConfirmationProps } from "@/types/order-confirmation.types";
 import TickMarkCircleIcon from "@/icons/TickMarkCircleIcon";
+
 const FALLBACK_IMAGE = "https://via.placeholder.com/64?text=No+Image";
+
+// Skeleton Components
+const SkeletonLine = ({
+  width = "w-full",
+  height = "h-4",
+}: {
+  width?: string;
+  height?: string;
+}) => (
+  <div className={`animate-pulse bg-gray-300 rounded ${width} ${height}`} />
+);
+
+const SkeletonCircle = ({ size = "w-10 h-10" }: { size?: string }) => (
+  <div className={`animate-pulse bg-gray-300 rounded-full ${size}`} />
+);
+
+const OrderConfirmationSkeleton = () => (
+  <div className="flex flex-col lg:flex-row max-w-4xl mx-auto my-10 p-6 bg-white rounded-lg shadow-md">
+    {/* Left Column Skeleton */}
+    <div className="flex-1 min-w-0 pr-0 lg:pr-8">
+      {/* Header Section */}
+      <div className="flex items-center mb-6">
+        <SkeletonCircle />
+        <div className="ml-3 flex-1">
+          <SkeletonLine width="w-3/4" height="h-8" />
+        </div>
+      </div>
+
+      {/* Email Confirmation */}
+      <div className="mb-4">
+        <SkeletonLine width="w-5/6" height="h-5" />
+      </div>
+
+      <hr className="my-4" />
+
+      {/* Order Details Section */}
+      <div className="mb-6 space-y-4">
+        {/* Order Number */}
+        <div>
+          <SkeletonLine width="w-24" height="h-4" />
+          <div className="mt-1">
+            <SkeletonLine width="w-40" height="h-5" />
+          </div>
+        </div>
+
+        {/* Shipping Address */}
+        <div>
+          <SkeletonLine width="w-28" height="h-4" />
+          <div className="mt-1 space-y-1">
+            <SkeletonLine width="w-48" height="h-5" />
+            <SkeletonLine width="w-64" height="h-5" />
+          </div>
+        </div>
+
+        {/* Shipping Method */}
+        <div>
+          <SkeletonLine width="w-32" height="h-4" />
+          <div className="mt-1">
+            <SkeletonLine width="w-36" height="h-5" />
+          </div>
+        </div>
+
+        {/* Payment Status */}
+        <div>
+          <SkeletonLine width="w-28" height="h-4" />
+          <div className="mt-1">
+            <SkeletonLine width="w-20" height="h-5" />
+          </div>
+        </div>
+
+        {/* Billing Address */}
+        <div>
+          <SkeletonLine width="w-28" height="h-4" />
+          <div className="mt-1 space-y-1">
+            <SkeletonLine width="w-48" height="h-5" />
+            <SkeletonLine width="w-64" height="h-5" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {/* Right Column Skeleton (Order Summary) */}
+    <div className="w-full lg:w-80 flex-shrink-0 mt-8 lg:mt-0">
+      <div className="bg-gray-50 rounded-md p-6">
+        {/* Product Items Skeleton */}
+        {[1, 2, 3].map((item) => (
+          <div key={item} className="flex items-start mb-4">
+            <SkeletonLine width="w-16 h-16" height="h-16" />
+            <div className="flex-1 ml-3">
+              <SkeletonLine width="w-full" height="h-5" />
+              <div className="mt-2">
+                <SkeletonLine width="w-20" height="h-4" />
+              </div>
+            </div>
+          </div>
+        ))}
+
+        <hr className="my-4" />
+
+        {/* Price Summary Skeleton */}
+        <div className="space-y-2">
+          {/* Subtotal */}
+          <div className="flex justify-between">
+            <SkeletonLine width="w-16" height="h-4" />
+            <SkeletonLine width="w-20" height="h-4" />
+          </div>
+
+          {/* Shipping */}
+          <div className="flex justify-between mb-4">
+            <SkeletonLine width="w-16" height="h-4" />
+            <SkeletonLine width="w-12" height="h-4" />
+          </div>
+
+          {/* Total */}
+          <div className="flex justify-between">
+            <SkeletonLine width="w-12" height="h-6" />
+            <SkeletonLine width="w-24" height="h-6" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+);
 
 export default function OrderConfirmation({ order }: OrderConfirmationProps) {
   const [loading, setLoading] = useState(true);
@@ -14,29 +138,20 @@ export default function OrderConfirmation({ order }: OrderConfirmationProps) {
     return () => clearTimeout(timeout);
   }, []);
 
-  const shipping = order.shippingAddress;
-  const billing = order.billingAddress;
-  const items = order.lineItems;
-  const email = order.customerEmail;
-  const shippingCost = order.shippingInfo?.price?.centAmount ?? 0;
-  const totalPrice = order.totalPrice?.centAmount ?? 0;
-  const currency = order.totalPrice?.currencyCode ?? "USD";
+  const shipping = order?.shippingAddress;
+  const billing = order?.billingAddress;
+  const items = order?.lineItems || [];
+  const email = order?.customerEmail;
+  const shippingCost = order?.shippingInfo?.price?.centAmount ?? 0;
+  const totalPrice = order?.totalPrice?.centAmount ?? 0;
+  const currency = order?.totalPrice?.currencyCode ?? "USD";
 
   const formatCurrency = (amount: number) =>
     `${currency} ${(amount / 100).toFixed(2)}`;
 
-  if (loading) {
-    return (
-      <div className="max-w-4xl mx-auto my-10 p-6">
-        <div className="animate-pulse space-y-4">
-          <div className="h-8 bg-gray-300 rounded w-1/2" />
-          <div className="h-6 bg-gray-200 rounded w-1/4" />
-          <div className="h-40 bg-gray-100 rounded" />
-          <div className="h-24 bg-gray-100 rounded" />
-          <div className="h-10 bg-gray-300 rounded w-32" />
-        </div>
-      </div>
-    );
+  // Show skeleton while loading or if order data is not available
+  if (loading || !order) {
+    return <OrderConfirmationSkeleton />;
   }
 
   return (

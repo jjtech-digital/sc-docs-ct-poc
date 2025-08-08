@@ -11,6 +11,12 @@ import { DEFAULT_BLUR_DATA_URL } from "@/constants";
 import ImagePlaceholderIcon from "@/icons/ImagePlaceholderIcon";
 import SpinnerIcon from "@/icons/SpinnerIcon";
 import TrashIcon from "@/icons/TrashIcon";
+import { CheckoutSuccessLoader } from "@/components/CheckoutSuccessLoader";
+import SupportIcon from "@/icons/SupportIcon";
+import ReturnPolicyIcon from "@/icons/ReturnPolicyIcon";
+import SecureIcon from "@/icons/SecureIcon";
+import CheckoutIcon from "@/icons/CheckoutIcon";
+import ShippingInfoIcon from "@/icons/ShippingInfoIcon";
 
 function generateOrderNumber() {
   const randomPart = Math.random().toString(36).substring(2, 6).toUpperCase();
@@ -21,11 +27,11 @@ function generateOrderNumber() {
 export default function CartPage() {
   const { cart, removeFromCart, clearCart, updateCartQuantity, isLoading } =
     useCart();
-
   const router = useRouter();
   const [quantities, setQuantities] = useState<{ [key: string]: number }>({});
   const [removingItems, setRemovingItems] = useState<Set<string>>(new Set());
   const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const [showSuccessLoader, setShowSuccessLoader] = useState(false);
 
   useEffect(() => {
     if (cart?.lineItems && cart.lineItems.length > 0) {
@@ -172,15 +178,22 @@ export default function CartPage() {
               } = message.payload as {
                 order: { id: string };
               };
-              router.push(`/order-confirmation?orderId=${id}`);
+
+              setShowSuccessLoader(true);
+
+              setTimeout(() => {
+                router.push(`/order-confirmation?orderId=${id}`);
+              }, 1500);
             }
           },
         });
       } catch (e) {
         console.error("Failed to parse cookie:", e);
+        setIsCheckingOut(false);
       }
+    } else {
+      setIsCheckingOut(false);
     }
-    setIsCheckingOut(false);
   };
 
   const subtotal = (cart?.totalPrice?.centAmount ?? 0) / 100;
@@ -189,183 +202,183 @@ export default function CartPage() {
   const total = subtotal + shipping + tax;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50/30 py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">
-            Shopping Cart
-          </h1>
-          <p className="text-gray-600">
-            {cart.lineItems.length}{" "}
-            {cart.lineItems.length === 1 ? "item" : "items"} in your cart
-          </p>
-        </div>
+    <>
+      {showSuccessLoader && <CheckoutSuccessLoader />}
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 space-y-4">
-            <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
-              {cart.lineItems.map((item: CartItem, index) => {
-                const discountedPrice =
-                  item.price?.discounted?.value.centAmount / 100;
-                const originalPrice = item.price?.value.centAmount / 100;
-                const isRemoving = removingItems.has(item.id);
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50/30 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="mb-8">
+            <h1 className="text-4xl font-bold text-gray-900 mb-2">
+              Shopping Cart
+            </h1>
+            <p className="text-gray-600">
+              {cart.lineItems.length}{" "}
+              {cart.lineItems.length === 1 ? "item" : "items"} in your cart
+            </p>
+          </div>
 
-                return (
-                  <div key={item.id}>
-                    <div
-                      className={`p-3 md:p-6 transition-all duration-300 ${
-                        isRemoving ? "opacity-50 scale-95" : "hover:bg-gray-50"
-                      }`}
-                    >
-                      {/* Mobile Layout */}
-                      <div className="block md:hidden">
-                        <div className="flex items-start space-x-3 mb-3">
-                          {item?.image ? (
-                            <Link href={`/products/${item.id}`}>
-                              <div className="relative w-16 h-16 flex-shrink-0 bg-white rounded-lg border border-gray-200 overflow-hidden group cursor-pointer">
-                                <Image
-                                  width={64}
-                                  height={64}
-                                  src={item.image}
-                                  alt={item.name?.["en-US"] || "Product"}
-                                  className="w-full h-full object-contain p-2 group-hover:scale-110 transition-transform duration-300"
-                                  placeholder="blur"
-                                  blurDataURL={DEFAULT_BLUR_DATA_URL}
-                                />
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-2 space-y-4">
+              <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+                {cart.lineItems.map((item: CartItem, index) => {
+                  const discountedPrice =
+                    item.price?.discounted?.value.centAmount / 100;
+                  const originalPrice = item.price?.value.centAmount / 100;
+                  const isRemoving = removingItems.has(item.id);
+
+                  return (
+                    <div key={item.id}>
+                      <div
+                        className={`p-3 md:p-6 transition-all duration-300 ${
+                          isRemoving
+                            ? "opacity-50 scale-95"
+                            : "hover:bg-gray-50"
+                        }`}
+                      >
+                        <div className="block md:hidden">
+                          <div className="flex items-start space-x-3 mb-3">
+                            {item?.image ? (
+                              <Link href={`/products/${item.id}`}>
+                                <div className="relative w-16 h-16 flex-shrink-0 bg-white rounded-lg border border-gray-200 overflow-hidden group cursor-pointer">
+                                  <Image
+                                    width={64}
+                                    height={64}
+                                    src={item.image}
+                                    alt={item.name?.["en-US"] || "Product"}
+                                    className="w-full h-full object-contain p-2 group-hover:scale-110 transition-transform duration-300"
+                                    placeholder="blur"
+                                    blurDataURL={DEFAULT_BLUR_DATA_URL}
+                                  />
+                                </div>
+                              </Link>
+                            ) : (
+                              <div className="relative w-16 h-16 flex-shrink-0 bg-gray-200 rounded-lg border border-gray-200 overflow-hidden animate-pulse">
+                                <div className="w-full h-full flex items-center justify-center">
+                                  <ImagePlaceholderIcon />
+                                </div>
                               </div>
-                            </Link>
-                          ) : (
-                            <div className="relative w-16 h-16 flex-shrink-0 bg-gray-200 rounded-lg border border-gray-200 overflow-hidden animate-pulse">
-                              <div className="w-full h-full flex items-center justify-center">
-                                <ImagePlaceholderIcon />
-                              </div>
-                            </div>
-                          )}
-
-                          <div className="flex-grow min-w-0">
-                            <h3 className="text-sm font-semibold text-gray-900 mb-1 line-clamp-2">
-                              {item.name?.["en-US"]}
-                            </h3>
-
-                            <div className="flex items-center space-x-2 mb-2">
-                              {discountedPrice ? (
-                                <>
-                                  <span className="text-xs text-gray-500 line-through">
+                            )}
+                            <div className="flex-grow min-w-0">
+                              <h3 className="text-sm font-semibold text-gray-900 mb-1 line-clamp-2">
+                                {item.name?.["en-US"]}
+                              </h3>
+                              <div className="flex items-center space-x-2 mb-2">
+                                {discountedPrice ? (
+                                  <>
+                                    <span className="text-xs text-gray-500 line-through">
+                                      ${originalPrice?.toFixed(2)}
+                                    </span>
+                                    <span className="text-sm font-bold text-indigo-600">
+                                      ${discountedPrice.toFixed(2)}
+                                    </span>
+                                    <span className="bg-red-100 text-red-700 text-xs px-1.5 py-0.5 rounded-full font-medium">
+                                      Sale
+                                    </span>
+                                  </>
+                                ) : (
+                                  <span className="text-sm font-bold text-gray-900">
                                     ${originalPrice?.toFixed(2)}
                                   </span>
-                                  <span className="text-sm font-bold text-indigo-600">
-                                    ${discountedPrice.toFixed(2)}
-                                  </span>
-                                  <span className="bg-red-100 text-red-700 text-xs px-1.5 py-0.5 rounded-full font-medium">
-                                    Sale
+                                )}
+                              </div>
+                            </div>
+                            <div className="text-right flex-shrink-0">
+                              <p className="text-lg font-bold text-gray-900">
+                                $
+                                {(item?.totalPrice?.centAmount / 100)?.toFixed(
+                                  2
+                                )}
+                              </p>
+                              <p className="text-xs text-gray-500">Total</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-2">
+                              <div className="flex items-center border-2 border-gray-200 rounded-lg overflow-hidden bg-white shadow-sm">
+                                <button
+                                  onClick={() => {
+                                    const newQuantity = Math.max(
+                                      1,
+                                      (quantities[item.id] || item.quantity) - 1
+                                    );
+                                    handleQuantityChange(item.id, newQuantity);
+                                    updateCartQuantity(item.id, newQuantity);
+                                  }}
+                                  className="w-8 h-8 flex items-center justify-center text-gray-600 hover:bg-gray-100 hover:text-indigo-600 active:bg-gray-200 transition-colors font-semibold text-lg touch-manipulation"
+                                  disabled={isRemoving}
+                                >
+                                  −
+                                </button>
+                                <input
+                                  type="number"
+                                  className="w-12 h-8 border-0 text-center focus:ring-0 focus:outline-none font-semibold text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                  min={1}
+                                  value={quantities[item.id] || item.quantity}
+                                  onChange={(e) =>
+                                    handleQuantityChange(
+                                      item.id,
+                                      parseInt(e.target.value) || 1
+                                    )
+                                  }
+                                  onBlur={() => handleUpdateQuantity(item.id)}
+                                  disabled={isRemoving}
+                                />
+                                <button
+                                  onClick={() => {
+                                    const newQuantity =
+                                      (quantities[item.id] || item.quantity) +
+                                      1;
+                                    handleQuantityChange(item.id, newQuantity);
+                                    updateCartQuantity(item.id, newQuantity);
+                                  }}
+                                  className="w-8 h-8 flex items-center justify-center text-gray-600 hover:bg-gray-100 hover:text-indigo-600 active:bg-gray-200 transition-colors font-semibold text-lg touch-manipulation"
+                                  disabled={isRemoving}
+                                >
+                                  +
+                                </button>
+                              </div>
+                              <span className="text-xs text-gray-500">
+                                × each
+                              </span>
+                            </div>
+                            <button
+                              onClick={() => handleRemoveItem(item.id)}
+                              disabled={isRemoving}
+                              className="flex items-center space-x-2 text-red-600 hover:text-red-700 hover:bg-red-50 px-2 py-1.5 rounded-lg transition-all duration-200 disabled:opacity-50"
+                            >
+                              {isRemoving ? (
+                                <>
+                                  <SpinnerIcon />
+                                  <span className="text-xs font-medium">
+                                    Removing...
                                   </span>
                                 </>
                               ) : (
-                                <span className="text-sm font-bold text-gray-900">
-                                  ${originalPrice?.toFixed(2)}
-                                </span>
+                                <>
+                                  <TrashIcon />
+                                  <span className="text-xs font-medium">
+                                    Remove
+                                  </span>
+                                </>
                               )}
-                            </div>
-                          </div>
-
-                          <div className="text-right flex-shrink-0">
-                            <p className="text-lg font-bold text-gray-900">
-                              $
-                              {(item?.totalPrice?.centAmount / 100)?.toFixed(2)}
-                            </p>
-                            <p className="text-xs text-gray-500">Total</p>
+                            </button>
                           </div>
                         </div>
 
-                        {/* Mobile Controls Row */}
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-2">
-                            <div className="flex items-center border-2 border-gray-200 rounded-lg overflow-hidden bg-white shadow-sm">
-                              <button
-                                onClick={() => {
-                                  const newQuantity = Math.max(
-                                    1,
-                                    (quantities[item.id] || item.quantity) - 1
-                                  );
-                                  handleQuantityChange(item.id, newQuantity);
-                                  updateCartQuantity(item.id, newQuantity);
-                                }}
-                                className="w-8 h-8 flex items-center justify-center text-gray-600 hover:bg-gray-100 hover:text-indigo-600 active:bg-gray-200 transition-colors font-semibold text-lg touch-manipulation"
-                                disabled={isRemoving}
-                              >
-                                −
-                              </button>
-                              <input
-                                type="number"
-                                className="w-12 h-8 border-0 text-center focus:ring-0 focus:outline-none font-semibold text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                                min={1}
-                                value={quantities[item.id] || item.quantity}
-                                onChange={(e) =>
-                                  handleQuantityChange(
-                                    item.id,
-                                    parseInt(e.target.value) || 1
-                                  )
-                                }
-                                onBlur={() => handleUpdateQuantity(item.id)}
-                                disabled={isRemoving}
-                              />
-                              <button
-                                onClick={() => {
-                                  const newQuantity =
-                                    (quantities[item.id] || item.quantity) + 1;
-                                  handleQuantityChange(item.id, newQuantity);
-                                  updateCartQuantity(item.id, newQuantity);
-                                }}
-                                className="w-8 h-8 flex items-center justify-center text-gray-600 hover:bg-gray-100 hover:text-indigo-600 active:bg-gray-200 transition-colors font-semibold text-lg touch-manipulation"
-                                disabled={isRemoving}
-                              >
-                                +
-                              </button>
-                            </div>
-                            <span className="text-xs text-gray-500">
-                              × each
-                            </span>
-                          </div>
-
-                          <button
-                            onClick={() => handleRemoveItem(item.id)}
-                            disabled={isRemoving}
-                            className="flex items-center space-x-2 text-red-600 hover:text-red-700 hover:bg-red-50 px-2 py-1.5 rounded-lg transition-all duration-200 disabled:opacity-50"
-                          >
-                            {isRemoving ? (
-                              <>
-                                <SpinnerIcon />
-                                <span className="text-xs font-medium">
-                                  Removing...
-                                </span>
-                              </>
-                            ) : (
-                              <>
-                                <TrashIcon />
-                                <span className="text-xs font-medium">
-                                  Remove
-                                </span>
-                              </>
-                            )}
-                          </button>
-                        </div>
-                      </div>
-
-                      {/* Desktop Layout */}
-                      <div className="hidden md:flex items-center space-x-6">
-                        {item?.image && (
-                          <Link href={`/products/${item.id}`}>
-                            <div className="relative w-24 h-[124px] flex-shrink-0 bg-white rounded-xl border border-gray-200 overflow-hidden group cursor-pointer">
-                              <Image
-                                width={96}
-                                height={96}
-                                src={item.image}
-                                alt={item.name?.["en-US"] || "Product"}
-                                className="w-full h-full object-contain p-3 group-hover:scale-110 transition-transform duration-300"
-                              />
-                            </div>
-                          </Link>
-                        )}
+                        <div className="hidden md:flex items-center space-x-6">
+                          {item?.image && (
+                            <Link href={`/products/${item.id}`}>
+                              <div className="relative w-24 h-[124px] flex-shrink-0 bg-white rounded-xl border border-gray-200 overflow-hidden group cursor-pointer">
+                                <Image
+                                  width={96}
+                                  height={96}
+                                  src={item.image}
+                                  alt={item.name?.["en-US"] || "Product"}
+                                  className="w-full h-full object-contain p-3 group-hover:scale-110 transition-transform duration-300"
+                                />
+                              </div>
+                            </Link>
+                          )}
 
                         <div className="flex-grow min-w-0">
                           <h3 className="text-lg font-semibold text-gray-900 mb-2 truncate">
@@ -502,213 +515,126 @@ export default function CartPage() {
                             )}
                           </button>
                         </div>
+                        </div>
                       </div>
+                      {index < (cart.lineItems?.length ?? 0) - 1 && (
+                        <div className="border-b border-gray-100"></div>
+                      )}
                     </div>
-                    {index < (cart.lineItems?.length ?? 0) - 1 && (
-                      <div className="border-b border-gray-100"></div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-
-            <div className="flex justify-start">
-              <button
-                onClick={clearCart}
-                className="flex items-center space-x-2 text-red-600 hover:text-red-700 hover:bg-red-50 px-4 py-2 rounded-xl border border-red-200 hover:border-red-300 transition-all duration-200"
-              >
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                  />
-                </svg>
-                <span className="font-medium">Clear Cart</span>
-              </button>
-            </div>
-          </div>
-
-          <div className="lg:col-span-1">
-            <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 sticky top-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">
-                Order Summary
-              </h2>
-
-              <div className="space-y-4 mb-6">
-                <div className="flex justify-between text-gray-600">
-                  <span>Subtotal ({cart.lineItems.length} items)</span>
-                  <span>${subtotal.toFixed(2)}</span>
-                </div>
-
-                <div className="flex justify-between text-gray-600">
-                  <span>Shipping</span>
-                  <div className="text-right">
-                    {shipping === 0 ? (
-                      <div>
-                        <span className="text-green-600 font-medium">FREE</span>
-                        <p className="text-xs text-green-600">
-                          Orders over $50
-                        </p>
-                      </div>
-                    ) : (
-                      <span>${shipping.toFixed(2)}</span>
-                    )}
-                  </div>
-                </div>
-
-                <div className="flex justify-between text-gray-600">
-                  <span>Tax</span>
-                  <span>${tax.toFixed(2)}</span>
-                </div>
-
-                <div className="border-t border-gray-200 pt-4">
-                  <div className="flex justify-between text-xl font-bold text-gray-900">
-                    <span>Total</span>
-                    <span>${total.toFixed(2)}</span>
-                  </div>
-                </div>
+                  );
+                })}
               </div>
 
-              {subtotal < 50 && (
-                <div className="mb-6 p-4 bg-blue-50 rounded-xl border border-blue-200">
-                  <div className="flex items-center space-x-2 mb-2">
-                    <svg
-                      className="w-5 h-5 text-blue-600"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10"
-                      />
-                    </svg>
-                    <span className="text-sm font-medium text-blue-900">
-                      Add ${(50 - subtotal).toFixed(2)} more for FREE shipping!
-                    </span>
+              <div className="flex justify-start">
+                <button
+                  onClick={clearCart}
+                  className="flex items-center space-x-2 text-red-600 hover:text-red-700 hover:bg-red-50 px-4 py-2 rounded-xl border border-red-200 hover:border-red-300 transition-all duration-200"
+                >
+                  <TrashIcon />
+                  <span className="font-medium">Clear Cart</span>
+                </button>
+              </div>
+            </div>
+
+            <div className="lg:col-span-1">
+              <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 sticky top-8">
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">
+                  Order Summary
+                </h2>
+                <div className="space-y-4 mb-6">
+                  <div className="flex justify-between text-gray-600">
+                    <span>Subtotal ({cart.lineItems.length} items)</span>
+                    <span>${subtotal.toFixed(2)}</span>
                   </div>
-                  <div className="w-full bg-blue-200 rounded-full h-2">
-                    <div
-                      className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                      style={{ width: `${(subtotal / 50) * 100}%` }}
-                    ></div>
+                  <div className="flex justify-between text-gray-600">
+                    <span>Shipping</span>
+                    <div className="text-right">
+                      {shipping === 0 ? (
+                        <div>
+                          <span className="text-green-600 font-medium">
+                            FREE
+                          </span>
+                          <p className="text-xs text-green-600">
+                            Orders over $50
+                          </p>
+                        </div>
+                      ) : (
+                        <span>${shipping.toFixed(2)}</span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex justify-between text-gray-600">
+                    <span>Tax</span>
+                    <span>${tax.toFixed(2)}</span>
+                  </div>
+                  <div className="border-t border-gray-200 pt-4">
+                    <div className="flex justify-between text-xl font-bold text-gray-900">
+                      <span>Total</span>
+                      <span>${total.toFixed(2)}</span>
+                    </div>
                   </div>
                 </div>
-              )}
 
-              <button
-                onClick={startCheckoutFlow}
-                disabled={
-                  !cart?.lineItems || cart.lineItems.length < 1 || isCheckingOut
-                }
-                className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 disabled:from-gray-400 disabled:to-gray-500 text-white py-4 px-6 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 disabled:hover:scale-100 shadow-lg hover:shadow-xl disabled:shadow-md"
-              >
-                {isCheckingOut ? (
-                  <div className="flex items-center justify-center space-x-2">
-                    <svg
-                      className="w-5 h-5 animate-spin"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      />
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      />
-                    </svg>
-                    <span>Processing...</span>
-                  </div>
-                ) : (
-                  <div className="flex items-center justify-center space-x-2">
-                    <svg
-                      className="w-6 h-6"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"
-                      />
-                    </svg>
-                    <span>Proceed to Checkout</span>
+                {subtotal < 50 && (
+                  <div className="mb-6 p-4 bg-blue-50 rounded-xl border border-blue-200">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <ShippingInfoIcon />
+                      <span className="text-sm font-medium text-blue-900">
+                        Add ${(50 - subtotal).toFixed(2)} more for FREE
+                        shipping!
+                      </span>
+                    </div>
+                    <div className="w-full bg-blue-200 rounded-full h-2">
+                      <div
+                        className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                        style={{ width: `${(subtotal / 50) * 100}%` }}
+                      ></div>
+                    </div>
                   </div>
                 )}
-              </button>
 
-              <div className="grid grid-cols-1 gap-3 mt-6 pt-6 border-t border-gray-200">
-                <div className="flex items-center space-x-3 text-sm text-gray-600">
-                  <svg
-                    className="w-5 h-5 text-green-500"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-                    />
-                  </svg>
-                  <span>Secure SSL encryption</span>
-                </div>
-                <div className="flex items-center space-x-3 text-sm text-gray-600">
-                  <svg
-                    className="w-5 h-5 text-blue-500"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"
-                    />
-                  </svg>
-                  <span>30-day return policy</span>
-                </div>
-                <div className="flex items-center space-x-3 text-sm text-gray-600">
-                  <svg
-                    className="w-5 h-5 text-purple-500"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192L5.636 18.364M12 12h.01M12 12h.01M12 12h.01M12 12h.01"
-                    />
-                  </svg>
-                  <span>24/7 customer support</span>
+                <button
+                  onClick={startCheckoutFlow}
+                  disabled={
+                    !cart?.lineItems ||
+                    cart.lineItems.length < 1 ||
+                    isCheckingOut ||
+                    showSuccessLoader
+                  }
+                  className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 disabled:from-gray-400 disabled:to-gray-500 text-white py-4 px-6 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 disabled:hover:scale-100 shadow-lg hover:shadow-xl disabled:shadow-md"
+                >
+                  {isCheckingOut ? (
+                    <div className="flex items-center justify-center space-x-2">
+                      <SpinnerIcon />
+                      <span>Processing...</span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-center space-x-2">
+                      <CheckoutIcon />
+                      <span>Proceed to Checkout</span>
+                    </div>
+                  )}
+                </button>
+
+                <div className="grid grid-cols-1 gap-3 mt-6 pt-6 border-t border-gray-200">
+                  <div className="flex items-center space-x-3 text-sm text-gray-600">
+                    <SecureIcon />
+                    <span>Secure SSL encryption</span>
+                  </div>
+                  <div className="flex items-center space-x-3 text-sm text-gray-600">
+                    <ReturnPolicyIcon />
+                    <span>30-day return policy</span>
+                  </div>
+                  <div className="flex items-center space-x-3 text-sm text-gray-600">
+                    <SupportIcon />
+                    <span>24/7 customer support</span>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
