@@ -13,15 +13,19 @@ type HitProps = {
   hit: {
     name?: Record<string, string>;
     slug?: Record<string, string>;
+    key?: string;
     objectID: string;
     variants?: Array<{
       images?: string[];
       prices?: {
         GBP?: { min?: number };
+        AUD?: { min?: number };
       };
       attributes?: {
         ["color-label"]?: Record<string, string>;
         ["finish-label"]?: Record<string, string>;
+        productspec?: Record<string, string>;
+        brand?: string;
       };
       isInStock?: boolean;
     }>;
@@ -39,23 +43,43 @@ export const Hit = ({ hit }: HitProps) => {
   const [liked, setLiked] = useState(false);
   const { addToCart } = useCart();
 
-  const name = hit.name?.[locale] ?? "Unnamed Product";
-  const slug = hit.slug?.[locale] ?? hit.objectID;
+  console.log("[Hit Component] Rendering hit:", hit);
+
+  const name =
+    hit.name?.[locale] ||
+    hit.productType ||
+    hit.key ||
+    hit.objectID ||
+    "Unnamed Product";
+
+  const slug = hit.slug?.[locale] || hit.key || hit.objectID;
+
   const image = hit.variants?.[0]?.images?.[0] ?? "/placeholder.png";
-  const productSpec = hit.attributes?.productspec?.[locale];
-  const productType = hit.productType;
-  const priceRaw = hit.variants?.[0]?.prices?.GBP?.min;
+
+  const productSpec =
+    hit.attributes?.productspec?.[locale] ||
+    hit.variants?.[0]?.attributes?.productspec?.[locale];
+
+  const priceRaw =
+    hit.variants?.[0]?.prices?.GBP?.min ?? hit.variants?.[0]?.prices?.AUD?.min;
+
   const rrpRaw = hit.rrp;
   const price = priceRaw ? priceRaw / 100 : 0;
   const rrp = rrpRaw ? rrpRaw / 100 : 0;
 
-  if (price <= 0) {
+  if (!priceRaw || price <= 0) {
+    console.warn(
+      `[Hit Component] Skipping ${name} because no valid price found`,
+      priceRaw
+    );
     return null;
   }
 
   const savings = rrp && price ? Math.round(((rrp - price) / rrp) * 100) : 0;
+
   const badge =
     hit.badge || (savings >= 50 ? "HOT DEAL" : savings > 0 ? "SALE" : null);
+
   const rating = hit.reviewScore ?? 0;
   const reviewCount = hit.reviewCount ?? 0;
   const colorLabel = hit.variants?.[0]?.attributes?.["color-label"]?.[locale];
@@ -64,12 +88,7 @@ export const Hit = ({ hit }: HitProps) => {
 
   return (
     <div
-      className="
-    w-full md:max-w-xs
-    bg-white rounded-2xl border border-gray-100
-    shadow-md transition-transform duration-300 hover:-translate-y-1 hover:shadow-xl
-    flex flex-col relative
-  "
+      className="w-full md:max-w-xs bg-white rounded-2xl border border-gray-100 shadow-md transition-transform duration-300 hover:-translate-y-1 hover:shadow-xl flex flex-col relative"
       key={hit.objectID}
     >
       {badge && (
@@ -112,18 +131,15 @@ export const Hit = ({ hit }: HitProps) => {
 
       <div className="p-3 flex flex-col flex-grow">
         <h3
-          className="
-        text-lg font-semibold text-gray-900 line-clamp-2
-        leading-tight min-h-[2rem]
-      "
+          className="text-lg font-semibold text-gray-900 line-clamp-2 leading-tight min-h-[2rem]"
           title={name}
         >
           {name}
         </h3>
 
-        {productType && (
+        {hit.productType && (
           <p className="text-sm text-indigo-600 font-medium mb-2">
-            {productType}
+            {hit.productType}
           </p>
         )}
 
@@ -165,12 +181,7 @@ export const Hit = ({ hit }: HitProps) => {
             </p>
           )}
           <div className="flex items-center gap-2">
-            <p
-              className="
-            text-indigo-600 font-extrabold text-xl
-            bg-gradient-to-r from-indigo-500 via-purple-600 to-indigo-500 bg-clip-text text-transparent
-          "
-            >
+            <p className="text-indigo-600 font-extrabold text-xl bg-gradient-to-r from-indigo-500 via-purple-600 to-indigo-500 bg-clip-text text-transparent">
               ${price.toFixed(2)}
             </p>
             {savings > 0 && (
@@ -183,15 +194,7 @@ export const Hit = ({ hit }: HitProps) => {
 
         <button
           onClick={() => addToCart(hit.objectID)}
-          className="
-        mt-auto
-        bg-indigo-600 text-white font-semibold py-2.5 rounded-lg
-        shadow-md hover:bg-indigo-700 active:bg-indigo-800
-        focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2
-        transition-colors duration-300
-        cursor-pointer
-        disabled:opacity-50 disabled:cursor-not-allowed
-      "
+          className="mt-auto bg-indigo-600 text-white font-semibold py-2.5 rounded-lg shadow-md hover:bg-indigo-700 active:bg-indigo-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors duration-300 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           aria-label={`Add ${name} to cart`}
         >
           Add to Cart
