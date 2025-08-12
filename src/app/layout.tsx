@@ -39,7 +39,7 @@ export default function RootLayout({
             <TokenCacheManager />
             <ToastContainer />
             <Header />
-            <div className="pb-16 h-fill-available bg-gradient-to-br from-[#f4f5fc] via-[#d8deff] to-[#f6f8fe]">
+            <div className="pb-16 h-auto bg-gradient-to-br from-[#f4f5fc] via-[#d8deff] to-[#f6f8fe]">
               {children}
             </div>
             <div className="fixed z-50 bottom-0 w-full">

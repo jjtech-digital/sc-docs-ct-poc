@@ -1,25 +1,38 @@
 "use client";
+
 import { useCart } from "@/context/CartContext";
 import { ProductProps } from "@/types/types";
 import Image from "next/image";
 import Link from "next/link";
 
 const ProductCard = ({ product }: { product: ProductProps }) => {
-  const { id, name, image, variants, slug } = product;
   const { addToCart } = useCart();
 
-  const productImage =
-    image && image !== ""
-      ? image
-      : variants && variants[0]?.images && variants[0].images.length > 0
-      ? variants[0].images[0]
-      : "https://via.placeholder.com/300x300?text=No+Image";
+  const productId = product.objectID || product.id || product.key || "";
 
-  const variant = variants && variants[0];
+  type LocalizedName = { [locale: string]: string };
+  const name: LocalizedName | undefined = (product as { name?: LocalizedName })
+    .name;
+  const productName =
+    name?.["en-US"] || name?.["en-GB"] || product.key || "Unnamed Product";
+
+  const variant = product.variants?.[0];
+
+  let productImage = "https://via.placeholder.com/300x300?text=No+Image";
+  if (product.image && product.image !== "") {
+    productImage = product.image;
+  } else if (variant?.images?.length) {
+    const firstImage = variant.images[0];
+    productImage =
+      typeof firstImage === "string"
+        ? firstImage
+        : (firstImage as { value: string })?.value || productImage;
+  }
+
   const centAmount =
     variant?.prices?.AUD?.min ?? variant?.prices?.AUD?.priceValues?.[0]?.value;
 
-  if (!centAmount || !name?.["en-US"]) {
+  if (!centAmount) {
     return null;
   }
 
@@ -31,15 +44,20 @@ const ProductCard = ({ product }: { product: ProductProps }) => {
         shadow-md transition-transform duration-300 hover:-translate-y-1 hover:shadow-xl
         flex flex-col
       "
-      key={id}
+      key={productId}
     >
       <Link
-        href={`/products/${slug?.["en-US"]}`}
+        href={`/products/${
+          (product.slug && "en-US" in product.slug && product.slug["en-US"]) ||
+          (product.slug && "en-GB" in product.slug && product.slug["en-GB"]) ||
+          product.key ||
+          productId
+        }`}
         className="group relative block w-full h-64 rounded-t-2xl overflow-hidden bg-gray-50"
       >
         <Image
           src={productImage}
-          alt={name?.["en-US"] || "Product Image"}
+          alt={productName}
           fill
           sizes="(max-width: 768px) 100vw, 300px"
           className="object-contain p-4 transition-transform duration-500 group-hover:scale-105"
@@ -50,13 +68,10 @@ const ProductCard = ({ product }: { product: ProductProps }) => {
 
       <div className="p-5 flex flex-col flex-grow">
         <h3
-          className="
-            text-lg font-semibold text-gray-900 mb-2 truncate 
-            leading-tight
-          "
-          title={name?.["en-US"]}
+          className="text-lg font-semibold text-gray-900 mb-2 truncate leading-tight"
+          title={productName}
         >
-          {name ? name?.["en-US"] : "No name"}
+          {productName}
         </h3>
         <p
           className="
@@ -68,7 +83,7 @@ const ProductCard = ({ product }: { product: ProductProps }) => {
           {`$${(centAmount / 100).toFixed(2)}`}
         </p>
         <button
-          onClick={() => addToCart(product.objectID || id)}
+          onClick={() => addToCart(productId)}
           className="
             mt-auto 
             bg-indigo-600 text-white font-semibold py-2 rounded-lg
@@ -78,7 +93,7 @@ const ProductCard = ({ product }: { product: ProductProps }) => {
             cursor-pointer
             disabled:opacity-50 disabled:cursor-not-allowed
           "
-          aria-label={`Add ${name?.["en-US"]} to cart`}
+          aria-label={`Add ${productName} to cart`}
         >
           Add to Cart
         </button>
