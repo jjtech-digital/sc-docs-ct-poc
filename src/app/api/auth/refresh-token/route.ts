@@ -1,4 +1,3 @@
-import { apiRoot } from "@/lib/ctClient";
 import { NextRequest, NextResponse } from "next/server";
 import { withExceptionFilter } from "@/lib/utils/withExceptionFilter";
 import { cookies } from "next/headers";

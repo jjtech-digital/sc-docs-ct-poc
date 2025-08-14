@@ -26,6 +26,9 @@ importers:
       algoliasearch:
         specifier: ^4.25.2
         version: 4.25.2
+      algoliasearch-helper:
+        specifier: ^3.26.0
+        version: 3.26.0(algoliasearch@4.25.2)
       js-cookie:
         specifier: ^3.0.5
         version: 3.0.5
@@ -702,6 +705,11 @@ packages:
 
   algoliasearch-helper@3.14.0:
     resolution: {integrity: sha512-gXDXzsSS0YANn5dHr71CUXOo84cN4azhHKUbg71vAWnH+1JBiR4jf7to3t3JHXknXkbV0F7f055vUSBKrltHLQ==}
+    peerDependencies:
+      algoliasearch: '>= 3.1 < 6'
+
+  algoliasearch-helper@3.26.0:
+    resolution: {integrity: sha512-Rv2x3GXleQ3ygwhkhJubhhYGsICmShLAiqtUuJTUkr9uOCOXyF2E71LVT4XDnVffbknv8XgScP4U0Oxtgm+hIw==}
     peerDependencies:
       algoliasearch: '>= 3.1 < 6'
 
@@ -2470,6 +2478,11 @@ snapshots:
       uri-js: 4.4.1
 
   algoliasearch-helper@3.14.0(algoliasearch@4.25.2):
+    dependencies:
+      '@algolia/events': 4.0.1
+      algoliasearch: 4.25.2
+
+  algoliasearch-helper@3.26.0(algoliasearch@4.25.2):
     dependencies:
       '@algolia/events': 4.0.1
       algoliasearch: 4.25.2
