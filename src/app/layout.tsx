@@ -42,7 +42,7 @@ export default function RootLayout({
             <ToastContainer />
             <Header />
             <LogoWrapper />
-            <div className="pb-16 h-full bg-gradient-to-br from-[#f4f5fc] via-[#d8deff] to-[#f6f8fe]">
+            <div className="pb-16 h-auto bg-gradient-to-br from-[#f4f5fc] via-[#d8deff] to-[#f6f8fe]">
               {children}
               <CartFlyout />
             </div>
