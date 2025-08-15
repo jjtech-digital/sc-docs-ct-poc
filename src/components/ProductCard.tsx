@@ -14,7 +14,11 @@ const ProductCard = ({ product }: { product: ProductProps }) => {
   const name: LocalizedName | undefined = (product as { name?: LocalizedName })
     .name;
   const productName =
-    name?.["en-US"] || name?.["en-GB"] || product.key || "Unnamed Product";
+    name?.["en"] ||
+    name?.["en-US"] ||
+    name?.["en-GB"] ||
+    product.key ||
+    "Unnamed Product";
 
   const variant = product.variants?.[0];
 

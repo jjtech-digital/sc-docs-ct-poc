@@ -21,6 +21,7 @@ export interface ProductProps {
   slug?: { "en-US": string };
   masterVariant?: {
     id: string;
+    sku?: string;
     prices: {
       value: {
         centAmount: number;
@@ -33,6 +34,7 @@ export interface ProductProps {
     attributes?: {
       name: string;
       value: {
+        en: string;
         "en-US": string;
       };
     }[];
@@ -64,10 +66,12 @@ export interface CartLineItemPrice {
 }
 
 export interface CartItem {
+  variant: ProductProps["masterVariant"];
   id: string;
   image: string;
   name: {
     "en-US": string;
+    "en"?: string;
     "en-GB"?: string;
     "de-DE"?: string;
   };
@@ -91,6 +95,7 @@ export type CartContextType = {
   updateCartQuantity: (id: string, quantity: number) => void;
   clearCart: () => void;
   getCart: () => Promise<Cart>;
+  refreshCart: () => Promise<void>;
   isLoading: boolean;
 };
 

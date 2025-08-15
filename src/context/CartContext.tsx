@@ -1,17 +1,42 @@
 "use client";
 
-import { createContext, useContext, ReactNode, useCallback } from "react";
+import {
+  createContext,
+  useContext,
+  ReactNode,
+  useCallback,
+  useState,
+} from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { CART_QUERY_KEY, emptyCart } from "@/lib/utils/constants";
 import { CartContextType } from "@/types/types";
 
-const CartContext = createContext<CartContextType | undefined>(undefined);
+interface ExtendedCartContextType extends CartContextType {
+  isCartOpen: boolean;
+  openCart: () => void;
+  closeCart: () => void;
+  toggleCart: () => void;
+  refreshCart: () => Promise<void>;
+}
+
+const CartContext = createContext<ExtendedCartContextType | undefined>(
+  undefined
+);
 
 export const CartProvider = ({ children }: { children: ReactNode }) => {
   const queryClient = useQueryClient();
+  const [isCartOpen, setIsCartOpen] = useState(false);
 
-  const { data: cart = {...emptyCart}, isLoading, refetch } = useQuery({
+  const openCart = useCallback(() => setIsCartOpen(true), []);
+  const closeCart = useCallback(() => setIsCartOpen(false), []);
+  const toggleCart = useCallback(() => setIsCartOpen((prev) => !prev), []);
+
+  const {
+    data: cart = { ...emptyCart },
+    isLoading,
+    refetch,
+  } = useQuery({
     queryKey: [CART_QUERY_KEY],
     queryFn: async () => {
       try {
@@ -20,18 +45,18 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
             "Content-Type": "application/json",
             "Accept-Language": "en-US",
           },
-          cache: "no-store"
+          cache: "no-store",
         });
-        
+
         if (!res.ok) {
           throw new Error("Failed to fetch cart");
         }
-        
+
         const cartData = await res.json();
         if (!cartData) {
           return emptyCart;
         }
-        
+
         return cartData?.cart || emptyCart;
       } catch (error) {
         console.error("Error fetching cart:", error);
@@ -45,6 +70,10 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     await refetch();
     return cart;
   }, [refetch, cart]);
+
+  const refreshCart = useCallback(async () => {
+    await refetch();
+  }, [refetch]);
 
   const addToCartMutation = useMutation({
     mutationFn: async (id: string) => {
@@ -63,14 +92,14 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       if (!res.ok) {
         throw new Error("Failed to add item to cart");
       }
-      
+
       return res.json();
     },
     onSuccess: (data) => {
       if (data?.cart) {
         queryClient.setQueryData([CART_QUERY_KEY], data.cart);
       }
-      toast("Added to cart");
+      openCart();
     },
     onError: (error) => {
       console.error("Error adding to cart:", error);
@@ -93,7 +122,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       if (!res.ok) {
         throw new Error("Failed to remove item from cart");
       }
-      
+
       return res.json();
     },
     onSuccess: (data) => {
@@ -113,7 +142,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       if (quantity < 1) {
         return removeFromCartMutation.mutateAsync(id);
       }
-      
+
       const res = await fetch("/api/cart/update-item", {
         method: "POST",
         headers: {
@@ -128,14 +157,13 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       if (!res.ok) {
         throw new Error("Failed to update item quantity");
       }
-      
+
       return res.json();
     },
     onSuccess: (data) => {
       if (data?.cart) {
         queryClient.setQueryData([CART_QUERY_KEY], data.cart);
       }
-      toast("Quantity updated");
     },
     onError: (error) => {
       console.error("Error updating quantity:", error);
@@ -155,7 +183,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       if (!res.ok) {
         throw new Error("Failed to clear cart");
       }
-      
+
       return res.json();
     },
     onSuccess: (data) => {
@@ -164,7 +192,6 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       } else {
         queryClient.setQueryData([CART_QUERY_KEY], emptyCart);
       }
-      toast("Cart cleared");
     },
     onError: (error) => {
       console.error("Error clearing cart:", error);
@@ -174,7 +201,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
   const addToCart = (id: string) => addToCartMutation.mutate(id);
   const removeFromCart = (id: string) => removeFromCartMutation.mutate(id);
-  const updateCartQuantity = (id: string, quantity: number) => 
+  const updateCartQuantity = (id: string, quantity: number) =>
     updateCartQuantityMutation.mutate({ id, quantity });
   const clearCart = () => clearCartMutation.mutate();
 
@@ -185,13 +212,16 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     updateCartQuantity,
     clearCart,
     getCart,
-    isLoading
+    isLoading,
+    isCartOpen,
+    openCart,
+    closeCart,
+    toggleCart,
+    refreshCart,
   };
 
   return (
-    <CartContext.Provider value={contextValue}>
-      {children}
-    </CartContext.Provider>
+    <CartContext.Provider value={contextValue}>{children}</CartContext.Provider>
   );
 };
 
