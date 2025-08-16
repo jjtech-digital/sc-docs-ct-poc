@@ -8,6 +8,8 @@ import { ToastContainer } from "react-toastify";
 import QueryClientProviderWrapper from "./QueryClientProviderWrapper";
 import TawkScript from "@/scripts/TawkScript";
 import TokenCacheManager from "@/components/TokenCacheManager";
+import CartFlyout from "@/components/CartFlyout";
+import LogoWrapper from "@/components/LogoWrapper";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -39,8 +41,10 @@ export default function RootLayout({
             <TokenCacheManager />
             <ToastContainer />
             <Header />
+            <LogoWrapper />
             <div className="pb-16 h-auto bg-gradient-to-br from-[#f4f5fc] via-[#d8deff] to-[#f6f8fe]">
               {children}
+              <CartFlyout />
             </div>
             <div className="fixed z-50 bottom-0 w-full">
               <Footer />

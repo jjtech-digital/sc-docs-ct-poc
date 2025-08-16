@@ -24,14 +24,76 @@ function generateOrderNumber() {
   return `ORD-${timestampPart}${randomPart}`;
 }
 
+const DISCOUNT_CODES: Record<
+  string,
+  { type: "percentage" | "fixed"; value: number; description: string }
+> = {
+  SAVE10: { type: "percentage", value: 10, description: "10% off" },
+  WELCOME20: { type: "percentage", value: 20, description: "20% off" },
+  FIXED5: { type: "fixed", value: 5, description: "$5 off" },
+  SUMMER25: { type: "percentage", value: 25, description: "25% off" },
+};
+
 export default function CartPage() {
-  const { cart, removeFromCart, clearCart, updateCartQuantity, isLoading } =
-    useCart();
+  const {
+    cart,
+    removeFromCart,
+    clearCart,
+    updateCartQuantity,
+    isLoading,
+    refreshCart,
+  } = useCart();
   const router = useRouter();
   const [quantities, setQuantities] = useState<{ [key: string]: number }>({});
   const [removingItems, setRemovingItems] = useState<Set<string>>(new Set());
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [showSuccessLoader, setShowSuccessLoader] = useState(false);
+  const [isFetchingCart, setIsFetchingCart] = useState(false);
+
+  const [discountCode, setDiscountCode] = useState("");
+  const [appliedDiscount, setAppliedDiscount] = useState<{
+    code: string;
+    type: "percentage" | "fixed";
+    value: number;
+    description: string;
+  } | null>(null);
+  const [discountError, setDiscountError] = useState("");
+  const [isApplyingDiscount, setIsApplyingDiscount] = useState(false);
+
+  useEffect(() => {
+    const fetchCartData = async () => {
+      setIsFetchingCart(true);
+      try {
+        const response = await fetch("/api/cart", {
+          method: "GET",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (response.ok) {
+          const cartData = await response.json();
+          console.log("Fresh cart data fetched:", cartData);
+
+          if (typeof refreshCart === "function") {
+            await refreshCart();
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch cart:", error);
+      } finally {
+        setIsFetchingCart(false);
+      }
+    };
+
+    const needsFetch = !cart?.lineItems?.some(
+      (item) => item.image || item.variant?.images?.[0]?.url
+    );
+    if (needsFetch) {
+      fetchCartData();
+    }
+  }, []);
 
   useEffect(() => {
     if (cart?.lineItems && cart.lineItems.length > 0) {
@@ -67,7 +129,46 @@ export default function CartPage() {
     });
   };
 
-  if (isLoading) {
+  const handleApplyDiscount = async () => {
+    if (!discountCode.trim()) {
+      setDiscountError("Please enter a discount code");
+      return;
+    }
+
+    setIsApplyingDiscount(true);
+    setDiscountError("");
+
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    const discount =
+      DISCOUNT_CODES[discountCode.toUpperCase() as keyof typeof DISCOUNT_CODES];
+
+    if (discount) {
+      setAppliedDiscount({
+        code: discountCode.toUpperCase(),
+        ...discount,
+      });
+      setDiscountCode("");
+      setDiscountError("");
+    } else {
+      setDiscountError("Invalid discount code");
+    }
+
+    setIsApplyingDiscount(false);
+  };
+
+  const handleRemoveDiscount = () => {
+    setAppliedDiscount(null);
+    setDiscountError("");
+  };
+
+  const handleDiscountKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      handleApplyDiscount();
+    }
+  };
+
+  if (isLoading || isFetchingCart) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50/30 flex items-center justify-center">
         <div className="text-center">
@@ -198,8 +299,21 @@ export default function CartPage() {
 
   const subtotal = (cart?.totalPrice?.centAmount ?? 0) / 100;
   const shipping = subtotal > 50 ? 0 : 9.99;
-  const tax = subtotal * 0.08;
-  const total = subtotal + shipping + tax;
+
+  let discountAmount = 0;
+  if (appliedDiscount) {
+    if (appliedDiscount.type === "percentage") {
+      discountAmount = subtotal * (appliedDiscount.value / 100);
+    } else {
+      discountAmount = appliedDiscount.value;
+    }
+  }
+
+  const discountedSubtotal = Math.max(0, subtotal - discountAmount);
+  const finalTax = discountedSubtotal * 0.08;
+  const finalShipping = discountedSubtotal > 50 ? 0 : shipping;
+  const total = discountedSubtotal + finalShipping + finalTax;
+
 
   return (
     <>
@@ -226,6 +340,11 @@ export default function CartPage() {
                   const originalPrice = item.price?.value.centAmount / 100;
                   const isRemoving = removingItems.has(item.id);
 
+                  const itemImage =
+                    item?.image || item?.variant?.images?.[0]?.url;
+                  const itemName =
+                    item.name?.["en-US"] || item.name?.["en"] || "Product";
+
                   return (
                     <div key={item.id}>
                       <div
@@ -237,14 +356,14 @@ export default function CartPage() {
                       >
                         <div className="block md:hidden">
                           <div className="flex items-start space-x-3 mb-3">
-                            {item?.image ? (
+                            {itemImage ? (
                               <Link href={`/products/${item.id}`}>
                                 <div className="relative w-16 h-16 flex-shrink-0 bg-white rounded-lg border border-gray-200 overflow-hidden group cursor-pointer">
                                   <Image
                                     width={64}
                                     height={64}
-                                    src={item.image}
-                                    alt={item.name?.["en-US"] || "Product"}
+                                    src={itemImage}
+                                    alt={itemName}
                                     className="w-full h-full object-contain p-2 group-hover:scale-110 transition-transform duration-300"
                                     placeholder="blur"
                                     blurDataURL={DEFAULT_BLUR_DATA_URL}
@@ -260,7 +379,7 @@ export default function CartPage() {
                             )}
                             <div className="flex-grow min-w-0">
                               <h3 className="text-sm font-semibold text-gray-900 mb-1 line-clamp-2">
-                                {item.name?.["en-US"]}
+                                {itemName}
                               </h3>
                               <div className="flex items-center space-x-2 mb-2">
                                 {discountedPrice ? (
@@ -366,155 +485,158 @@ export default function CartPage() {
                         </div>
 
                         <div className="hidden md:flex items-center space-x-6">
-                          {item?.image && (
+                          {itemImage && (
                             <Link href={`/products/${item.id}`}>
                               <div className="relative w-24 h-[124px] flex-shrink-0 bg-white rounded-xl border border-gray-200 overflow-hidden group cursor-pointer">
                                 <Image
                                   width={96}
                                   height={96}
-                                  src={item.image}
-                                  alt={item.name?.["en-US"] || "Product"}
+                                  src={itemImage}
+                                  alt={itemName}
                                   className="w-full h-full object-contain p-3 group-hover:scale-110 transition-transform duration-300"
                                 />
                               </div>
                             </Link>
                           )}
 
-                        <div className="flex-grow min-w-0">
-                          <h3 className="text-lg font-semibold text-gray-900 mb-2 truncate">
-                            {item.name?.["en-US"]}
-                          </h3>
+                          <div className="flex-grow min-w-0">
+                            <h3 className="text-lg font-semibold text-gray-900 mb-2 truncate">
+                              {itemName}
+                            </h3>
 
-                          <div className="flex items-center space-x-2 mb-4">
-                            {discountedPrice ? (
-                              <>
-                                <span className="text-sm text-gray-500 line-through">
+                            <div className="flex items-center space-x-2 mb-4">
+                              {discountedPrice ? (
+                                <>
+                                  <span className="text-sm text-gray-500 line-through">
+                                    ${originalPrice?.toFixed(2)}
+                                  </span>
+                                  <span className="text-lg font-bold text-indigo-600">
+                                    ${discountedPrice.toFixed(2)}
+                                  </span>
+                                  <span className="bg-red-100 text-red-700 text-xs px-2 py-1 rounded-full font-medium">
+                                    Sale
+                                  </span>
+                                </>
+                              ) : (
+                                <span className="text-lg font-bold text-gray-900">
                                   ${originalPrice?.toFixed(2)}
                                 </span>
-                                <span className="text-lg font-bold text-indigo-600">
-                                  ${discountedPrice.toFixed(2)}
-                                </span>
-                                <span className="bg-red-100 text-red-700 text-xs px-2 py-1 rounded-full font-medium">
-                                  Sale
-                                </span>
-                              </>
-                            ) : (
-                              <span className="text-lg font-bold text-gray-900">
-                                ${originalPrice?.toFixed(2)}
-                              </span>
-                            )}
-                          </div>
-
-                          <div className="flex items-center space-x-4">
-                            <div className="flex items-center border-2 border-gray-200 rounded-xl overflow-hidden bg-white shadow-sm">
-                              <button
-                                onClick={() => {
-                                  const newQuantity = Math.max(
-                                    1,
-                                    (quantities[item.id] || item.quantity) - 1
-                                  );
-                                  handleQuantityChange(item.id, newQuantity);
-                                  updateCartQuantity(item.id, newQuantity);
-                                }}
-                                className="w-10 h-10 flex items-center justify-center text-gray-600 hover:bg-gray-100 hover:text-indigo-600 active:bg-gray-200 transition-colors font-semibold text-xl touch-manipulation"
-                                disabled={isRemoving}
-                              >
-                                −
-                              </button>
-                              <input
-                                type="number"
-                                className="w-16 h-10 border-0 text-center focus:ring-0 focus:outline-none font-semibold text-base [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                                min={1}
-                                value={quantities[item.id] || item.quantity}
-                                onChange={(e) =>
-                                  handleQuantityChange(
-                                    item.id,
-                                    parseInt(e.target.value) || 1
-                                  )
-                                }
-                                onBlur={() => handleUpdateQuantity(item.id)}
-                                disabled={isRemoving}
-                              />
-                              <button
-                                onClick={() => {
-                                  const newQuantity =
-                                    (quantities[item.id] || item.quantity) + 1;
-                                  handleQuantityChange(item.id, newQuantity);
-                                  updateCartQuantity(item.id, newQuantity);
-                                }}
-                                className="w-10 h-10 flex items-center justify-center text-gray-600 hover:bg-gray-100 hover:text-indigo-600 active:bg-gray-200 transition-colors font-semibold text-xl touch-manipulation"
-                                disabled={isRemoving}
-                              >
-                                +
-                              </button>
+                              )}
                             </div>
-                            <span className="text-sm text-gray-500 whitespace-nowrap">
-                              × each
-                            </span>
-                          </div>
-                        </div>
 
-                        <div className="flex flex-col items-end space-y-4">
-                          <div className="text-right">
-                            <p className="text-2xl font-bold text-gray-900">
-                              $
-                              {(item?.totalPrice?.centAmount / 100)?.toFixed(2)}
-                            </p>
-                            <p className="text-sm text-gray-500">Total</p>
-                          </div>
-
-                          <button
-                            onClick={() => handleRemoveItem(item.id)}
-                            disabled={isRemoving}
-                            className="flex items-center space-x-2 text-red-600 hover:text-red-700 hover:bg-red-50 px-3 py-2 rounded-lg transition-all duration-200 disabled:opacity-50"
-                          >
-                            {isRemoving ? (
-                              <>
-                                <svg
-                                  className="w-4 h-4 animate-spin"
-                                  fill="none"
-                                  viewBox="0 0 24 24"
+                            <div className="flex items-center space-x-4">
+                              <div className="flex items-center border-2 border-gray-200 rounded-xl overflow-hidden bg-white shadow-sm">
+                                <button
+                                  onClick={() => {
+                                    const newQuantity = Math.max(
+                                      1,
+                                      (quantities[item.id] || item.quantity) - 1
+                                    );
+                                    handleQuantityChange(item.id, newQuantity);
+                                    updateCartQuantity(item.id, newQuantity);
+                                  }}
+                                  className="w-10 h-10 flex items-center justify-center text-gray-600 hover:bg-gray-100 hover:text-indigo-600 active:bg-gray-200 transition-colors font-semibold text-xl touch-manipulation"
+                                  disabled={isRemoving}
                                 >
-                                  <circle
-                                    className="opacity-25"
-                                    cx="12"
-                                    cy="12"
-                                    r="10"
+                                  −
+                                </button>
+                                <input
+                                  type="number"
+                                  className="w-16 h-10 border-0 text-center focus:ring-0 focus:outline-none font-semibold text-base [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                  min={1}
+                                  value={quantities[item.id] || item.quantity}
+                                  onChange={(e) =>
+                                    handleQuantityChange(
+                                      item.id,
+                                      parseInt(e.target.value) || 1
+                                    )
+                                  }
+                                  onBlur={() => handleUpdateQuantity(item.id)}
+                                  disabled={isRemoving}
+                                />
+                                <button
+                                  onClick={() => {
+                                    const newQuantity =
+                                      (quantities[item.id] || item.quantity) +
+                                      1;
+                                    handleQuantityChange(item.id, newQuantity);
+                                    updateCartQuantity(item.id, newQuantity);
+                                  }}
+                                  className="w-10 h-10 flex items-center justify-center text-gray-600 hover:bg-gray-100 hover:text-indigo-600 active:bg-gray-200 transition-colors font-semibold text-xl touch-manipulation"
+                                  disabled={isRemoving}
+                                >
+                                  +
+                                </button>
+                              </div>
+                              <span className="text-sm text-gray-500 whitespace-nowrap">
+                                × each
+                              </span>
+                            </div>
+                          </div>
+
+                          <div className="flex flex-col items-end space-y-4">
+                            <div className="text-right">
+                              <p className="text-2xl font-bold text-gray-900">
+                                $
+                                {(item?.totalPrice?.centAmount / 100)?.toFixed(
+                                  2
+                                )}
+                              </p>
+                              <p className="text-sm text-gray-500">Total</p>
+                            </div>
+
+                            <button
+                              onClick={() => handleRemoveItem(item.id)}
+                              disabled={isRemoving}
+                              className="flex items-center space-x-2 text-red-600 hover:text-red-700 hover:bg-red-50 px-3 py-2 rounded-lg transition-all duration-200 disabled:opacity-50"
+                            >
+                              {isRemoving ? (
+                                <>
+                                  <svg
+                                    className="w-4 h-4 animate-spin"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <circle
+                                      className="opacity-25"
+                                      cx="12"
+                                      cy="12"
+                                      r="10"
+                                      stroke="currentColor"
+                                      strokeWidth="4"
+                                    />
+                                    <path
+                                      className="opacity-75"
+                                      fill="currentColor"
+                                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                    />
+                                  </svg>
+                                  <span className="text-sm font-medium">
+                                    Removing...
+                                  </span>
+                                </>
+                              ) : (
+                                <>
+                                  <svg
+                                    className="w-4 h-4"
+                                    fill="none"
                                     stroke="currentColor"
-                                    strokeWidth="4"
-                                  />
-                                  <path
-                                    className="opacity-75"
-                                    fill="currentColor"
-                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                                  />
-                                </svg>
-                                <span className="text-sm font-medium">
-                                  Removing...
-                                </span>
-                              </>
-                            ) : (
-                              <>
-                                <svg
-                                  className="w-4 h-4"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  viewBox="0 0 24 24"
-                                >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                                  />
-                                </svg>
-                                <span className="text-sm font-medium">
-                                  Remove
-                                </span>
-                              </>
-                            )}
-                          </button>
-                        </div>
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth={2}
+                                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                    />
+                                  </svg>
+                                  <span className="text-sm font-medium">
+                                    Remove
+                                  </span>
+                                </>
+                              )}
+                            </button>
+                          </div>
                         </div>
                       </div>
                       {index < (cart.lineItems?.length ?? 0) - 1 && (
@@ -541,15 +663,129 @@ export default function CartPage() {
                 <h2 className="text-2xl font-bold text-gray-900 mb-6">
                   Order Summary
                 </h2>
+
+                <div className="mb-6">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Discount Code
+                  </label>
+                  {appliedDiscount ? (
+                    <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <div className="flex items-center space-x-2">
+                            <svg
+                              className="w-4 h-4 text-green-600"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M5 13l4 4L19 7"
+                              />
+                            </svg>
+                            <span className="font-medium text-green-900">
+                              {appliedDiscount.code}
+                            </span>
+                          </div>
+                          <p className="text-sm text-green-700">
+                            {appliedDiscount.description} applied
+                          </p>
+                        </div>
+                        <button
+                          onClick={handleRemoveDiscount}
+                          className="text-green-600 hover:text-green-800 text-sm font-medium"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <div className="flex space-x-2">
+                        <input
+                          type="text"
+                          value={discountCode}
+                          onChange={(e) => setDiscountCode(e.target.value)}
+                          onKeyPress={handleDiscountKeyPress}
+                          placeholder="Enter discount code"
+                          className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                          disabled={isApplyingDiscount}
+                        />
+                        <button
+                          onClick={handleApplyDiscount}
+                          disabled={isApplyingDiscount || !discountCode.trim()}
+                          className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-medium"
+                        >
+                          {isApplyingDiscount ? (
+                            <div className="flex items-center space-x-1">
+                              <svg
+                                className="w-4 h-4 animate-spin"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                              >
+                                <circle
+                                  className="opacity-25"
+                                  cx="12"
+                                  cy="12"
+                                  r="10"
+                                  stroke="currentColor"
+                                  strokeWidth="4"
+                                />
+                                <path
+                                  className="opacity-75"
+                                  fill="currentColor"
+                                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                />
+                              </svg>
+                              <span>Applying</span>
+                            </div>
+                          ) : (
+                            "Apply"
+                          )}
+                        </button>
+                      </div>
+                      {discountError && (
+                        <p className="text-red-600 text-sm flex items-center space-x-1">
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                            />
+                          </svg>
+                          <span>{discountError}</span>
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </div>
+
                 <div className="space-y-4 mb-6">
                   <div className="flex justify-between text-gray-600">
                     <span>Subtotal ({cart.lineItems.length} items)</span>
                     <span>${subtotal.toFixed(2)}</span>
                   </div>
+
+                  {appliedDiscount && discountAmount > 0 && (
+                    <div className="flex justify-between text-green-600">
+                      <span>Discount ({appliedDiscount.code})</span>
+                      <span>-${discountAmount.toFixed(2)}</span>
+                    </div>
+                  )}
+
                   <div className="flex justify-between text-gray-600">
                     <span>Shipping</span>
                     <div className="text-right">
-                      {shipping === 0 ? (
+                      {finalShipping === 0 ? (
                         <div>
                           <span className="text-green-600 font-medium">
                             FREE
@@ -559,35 +795,40 @@ export default function CartPage() {
                           </p>
                         </div>
                       ) : (
-                        <span>${shipping.toFixed(2)}</span>
+                        <span>${finalShipping.toFixed(2)}</span>
                       )}
                     </div>
                   </div>
                   <div className="flex justify-between text-gray-600">
                     <span>Tax</span>
-                    <span>${tax.toFixed(2)}</span>
+                    <span>${finalTax.toFixed(2)}</span>
                   </div>
                   <div className="border-t border-gray-200 pt-4">
                     <div className="flex justify-between text-xl font-bold text-gray-900">
                       <span>Total</span>
                       <span>${total.toFixed(2)}</span>
                     </div>
+                    {appliedDiscount && (
+                      <p className="text-sm text-green-600 mt-1">
+                        You saved ${discountAmount.toFixed(2)}!
+                      </p>
+                    )}
                   </div>
                 </div>
 
-                {subtotal < 50 && (
+                {discountedSubtotal < 50 && (
                   <div className="mb-6 p-4 bg-blue-50 rounded-xl border border-blue-200">
                     <div className="flex items-center space-x-2 mb-2">
                       <ShippingInfoIcon />
                       <span className="text-sm font-medium text-blue-900">
-                        Add ${(50 - subtotal).toFixed(2)} more for FREE
-                        shipping!
+                        Add ${(50 - discountedSubtotal).toFixed(2)} more for
+                        FREE shipping!
                       </span>
                     </div>
                     <div className="w-full bg-blue-200 rounded-full h-2">
                       <div
                         className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                        style={{ width: `${(subtotal / 50) * 100}%` }}
+                        style={{ width: `${(discountedSubtotal / 50) * 100}%` }}
                       ></div>
                     </div>
                   </div>

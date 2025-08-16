@@ -122,7 +122,7 @@ const ProductDetailClient = ({ id }: { id: string }) => {
               <span className="mx-2">/</span>
             </li>
             <li className="text-gray-900 font-medium truncate">
-              {product.name?.["en-US"]}
+              {product.name?.["en"] || product.name?.["en-US"]}
             </li>
           </ol>
         </nav>
@@ -183,9 +183,13 @@ const ProductDetailClient = ({ id }: { id: string }) => {
 
           <div className="space-y-8">
             <div className="space-y-4">
+                <h1 className="text-4xl font-bold text-gray-900 leading-tight">
+                {product.name?.["en"]}
+              </h1>
               <div className="flex items-center justify-between">
+                
                 <span className="text-sm font-medium text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full">
-                  SKU: {product.key}
+                  SKU: {product?.masterVariant?.sku}
                 </span>
                 <div className="flex items-center space-x-1">
                   {[...Array(5)].map((_, i) => (
@@ -206,9 +210,7 @@ const ProductDetailClient = ({ id }: { id: string }) => {
                 </div>
               </div>
 
-              <h1 className="text-4xl font-bold text-gray-900 leading-tight">
-                {product.name?.["en-US"]}
-              </h1>
+            
 
               <div className="flex items-center space-x-4">
                 <span className="text-4xl font-bold text-indigo-600">
@@ -238,43 +240,50 @@ const ProductDetailClient = ({ id }: { id: string }) => {
             )}
 
             {(product?.masterVariant?.attributes?.length ?? 0) > 0 && (
-              <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                  <svg
-                    className="w-5 h-5 text-indigo-500 mr-2"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
-                  </svg>
-                  Key Features
-                </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {product.masterVariant?.attributes
-                    ?.filter((feature) => {
-                      const val = feature?.value?.["en-US"];
-                      return val !== undefined && val !== null && val !== "";
-                    })
-                    .map((feature, i) => (
-                      <div
-                        key={i}
-                        className="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl"
-                      >
-                        <div className="w-2 h-2 bg-indigo-500 rounded-full flex-shrink-0"></div>
-                        <span className="text-sm text-gray-700">
-                          {feature.value["en-US"]?.replace(/^-+/, "")}
-                        </span>
-                      </div>
-                    ))}
-                </div>
-              </div>
-            )}
+  <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+    <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+      <svg
+        className="w-5 h-5 text-indigo-500 mr-2"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+        />
+      </svg>
+      Key Features
+    </h3>
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      {product.masterVariant?.attributes
+        ?.filter((feature) => {
+          const val = typeof feature?.value === "object"
+            ? feature.value?.["en-US"] || feature.value?.en || ""
+            : feature?.value;
+          return val?.trim();
+        })
+        .map((feature, i) => {
+          const val = typeof feature?.value === "object"
+            ? feature.value?.["en-US"] || feature.value?.en || ""
+            : feature?.value;
+          return (
+            <div
+              key={i}
+              className="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl"
+            >
+              <div className="w-2 h-2 bg-indigo-500 rounded-full flex-shrink-0"></div>
+              <span className="text-sm text-gray-700">
+                {val.replace(/^-+/, "").trim()}
+              </span>
+            </div>
+          );
+        })}
+    </div>
+  </div>
+)}
 
             <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 space-y-6 mb-8">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
