@@ -43,12 +43,11 @@ export default function CartFlyout() {
   const totalPrice = cart?.totalPrice?.centAmount
     ? (cart.totalPrice.centAmount / 100).toFixed(2)
     : "0.00";
-console.log("cartItems", cartItems);
 
   return (
     <>
       <div
-        className="fixed inset-0 bg-opacity-50 z-40 transition-opacity"
+        className="fixed inset-0 z-40 transition-opacity"
         onClick={closeCart}
       />
 

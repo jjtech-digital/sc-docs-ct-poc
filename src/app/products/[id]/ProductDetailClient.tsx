@@ -42,7 +42,6 @@ const ProductDetailClient = ({ id }: { id: string }) => {
     await addToCart(product?.id);
     setTimeout(() => setIsAddingToCart(false), 600);
   };
-console.log("product",product);
 
   if (isLoading) {
     return (

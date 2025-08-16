@@ -314,7 +314,6 @@ export default function CartPage() {
   const finalShipping = discountedSubtotal > 50 ? 0 : shipping;
   const total = discountedSubtotal + finalShipping + finalTax;
 
-  console.log("Cart data:", cart);
 
   return (
     <>
