@@ -17,8 +17,23 @@ async function handler(req: NextRequest): Promise<NextResponse> {
   try {
     const reqbody = await req.json();
     const cookieStore = await cookies();
+    const userCookie = cookieStore.get("user");
+    if (!userCookie) {
+      return NextResponse.json(
+        { error: "User not authenticated." },
+        { status: 401 }
+      );
+    }
+    const user = JSON.parse(userCookie.value);
+    if (!user.refresh_token) {
+      return NextResponse.json(
+        { error: "Refresh token is required." },
+        { status: 400 }
+      );
+    }
     const body = new URLSearchParams({
       grant_type: "refresh_token",
+      refresh_token: user.refresh_token,
       scope: `${process.env.CT_SCOPE}:${projectKey}`,
     });
 
@@ -65,4 +80,4 @@ async function handler(req: NextRequest): Promise<NextResponse> {
   }
 }
 
-export const POST = withExceptionFilter(handler);
+export const GET = withExceptionFilter(handler);
