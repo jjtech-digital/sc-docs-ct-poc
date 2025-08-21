@@ -14,6 +14,7 @@ const locale = "en-GB";
 
 interface HitProps {
   hit: {
+    key: string;
     name?: Record<string, string>;
     variants?: Array<{
       images?: string[];
@@ -22,10 +23,37 @@ interface HitProps {
   };
 }
 
+type AlgoliaHit = {
+  objectID: string;
+  key?: string;
+  name?: Record<string, string>;
+  variants?: Array<{ images?: string[] }>;
+  slug?: Record<string, string>;
+};
+
+const capitalize = (str: string) => str.charAt(0).toUpperCase() + str.slice(1);
+
+function mapAlgoliaHitToLocalHit(hit: Partial<AlgoliaHit>): HitProps["hit"] {
+  return {
+    key: typeof hit.key === "string" ? hit.key : hit.objectID ?? "unknown",
+    name: hit.name && typeof hit.name === "object" ? hit.name : undefined,
+    variants: Array.isArray(hit.variants) ? hit.variants : undefined,
+    slug: hit.slug && typeof hit.slug === "object" ? hit.slug : undefined,
+  };
+}
+
 const AutocompleteItem = ({ hit }: { hit: HitProps["hit"] }) => {
-  const productName = hit.name?.[locale] || "Unnamed product";
+  const productName =
+    hit.name?.[locale] ||
+    (hit.slug?.[locale]
+      ? capitalize(hit.slug[locale].replace(/-/g, " "))
+      : typeof hit.key === "string"
+      ? capitalize(hit.key.replace(/-/g, " "))
+      : hit.key) ||
+    "Unnamed product";
   const productImage = hit.variants?.[0]?.images?.[0] || "/placeholder.png";
-  const slug = hit.slug?.[locale] || "#";
+  const slug = hit.key;
+  console.log("hit", hit);
 
   return (
     <a
@@ -81,7 +109,7 @@ const Autocomplete = ({
         setIsLoadingPopular(true);
         const response = await searchClient.search([
           {
-            indexName: "dev_Products",
+            indexName: "dev_safetydocs",
             query: "",
             params: {
               hitsPerPage: 6,
@@ -90,7 +118,9 @@ const Autocomplete = ({
         ]);
 
         if (response.results[0] && "hits" in response.results[0]) {
-          setPopularProducts(response.results[0].hits as HitProps["hit"][]);
+          setPopularProducts(
+            response.results[0].hits.map(mapAlgoliaHitToLocalHit)
+          );
         }
       } catch (error) {
         console.error("Error fetching popular products:", error);
@@ -104,6 +134,7 @@ const Autocomplete = ({
   }, []);
 
   const displayHits = currentRefinement.length > 0 ? hits : popularProducts;
+  console.log("dev_safetydocs", displayHits);
 
   return (
     <div className="relative w-full max-w-[600px]">
@@ -277,11 +308,15 @@ const Autocomplete = ({
   );
 };
 
-const CustomAutocomplete = connectAutoComplete(Autocomplete);
+const CustomAutocomplete = connectAutoComplete((props: AutocompleteProps) => {
+  // Map Algolia hits to local type for type safety
+  const safeHits = props.hits.map(mapAlgoliaHitToLocalHit);
+  return <Autocomplete {...props} hits={safeHits} />;
+});
 
 const QuickSearch = () => {
   return (
-    <InstantSearch searchClient={searchClient} indexName="dev_Products">
+    <InstantSearch searchClient={searchClient} indexName="dev_safetydocs">
       <CustomAutocomplete />
     </InstantSearch>
   );

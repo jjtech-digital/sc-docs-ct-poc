@@ -4,7 +4,7 @@ const nextConfig: NextConfig = {
   output: "standalone",
   trailingSlash: true,
   images: {
-     domains: ["via.placeholder.com"],
+     domains: ["via.placeholder.com", "www.safetyculture.com.au"],
     remotePatterns: [
       {
         protocol: "https",
