@@ -127,7 +127,6 @@ function validateAndNormalizeUser(rawUser: unknown): ExtendedUser | null {
   if (!userObj.refresh_token || typeof userObj.refresh_token !== "string") {
     return null;
   }
-console.log("userObj",userObj);
 
   let access_token =
     typeof userObj.access_token === "string" ? userObj.access_token : undefined;
