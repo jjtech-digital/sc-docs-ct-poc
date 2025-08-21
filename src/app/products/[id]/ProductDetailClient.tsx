@@ -96,7 +96,7 @@ const ProductDetailClient = ({ id }: { id: string }) => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50/30">
-      <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+      <div className="max-w-[1920px] mx-auto px-4 py-8 sm:px-6 lg:px-8">
         <nav className="mb-8">
           <ol className="flex items-center space-x-2 text-sm text-gray-500">
             <li>
