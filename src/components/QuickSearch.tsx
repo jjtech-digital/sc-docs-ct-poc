@@ -53,7 +53,6 @@ const AutocompleteItem = ({ hit }: { hit: HitProps["hit"] }) => {
     "Unnamed product";
   const productImage = hit.variants?.[0]?.images?.[0] || "/placeholder.png";
   const slug = hit.key;
-  console.log("hit", hit);
 
   return (
     <a
@@ -134,7 +133,6 @@ const Autocomplete = ({
   }, []);
 
   const displayHits = currentRefinement.length > 0 ? hits : popularProducts;
-  console.log("dev_safetydocs", displayHits);
 
   return (
     <div className="relative w-full max-w-[600px]">
