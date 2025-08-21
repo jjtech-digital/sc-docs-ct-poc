@@ -63,7 +63,7 @@ export default function Home() {
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 sm:gap-6 max-w-[1920px] m-8 lg:m-auto mt-5">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 sm:gap-6 max-w-[1920px] px-8 m-8 mx-auto">
       {products.map((product) => (
         <div key={product.key}>
           <ProductCard key={product.key} product={product} />
