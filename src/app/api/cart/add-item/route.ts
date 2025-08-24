@@ -165,7 +165,7 @@ async function getOrCreateValidUser(
 
   const newAnonUser = await createAnonymousUser();
   await setCookie("user", JSON.stringify(newAnonUser), {
-    httpOnly: true,
+    httpOnly: false,
     sameSite: "lax",
     maxAge: 30 * 24 * 60 * 60 * 1000,
   });
@@ -222,7 +222,7 @@ async function updateUserWithCartInfo(
   };
 
   await setCookie("user", JSON.stringify(updatedUser), {
-    httpOnly: true,
+    httpOnly: false, // Ensure client-accessible
     sameSite: "lax",
     maxAge: 30 * 24 * 60 * 60 * 1000,
   });
