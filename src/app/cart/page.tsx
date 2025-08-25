@@ -73,9 +73,6 @@ export default function CartPage() {
         });
 
         if (response.ok) {
-          const cartData = await response.json();
-          console.log("Fresh cart data fetched:", cartData);
-
           if (typeof refreshCart === "function") {
             await refreshCart();
           }
@@ -235,6 +232,7 @@ export default function CartPage() {
   const startCheckoutFlow = async () => {
     setIsCheckingOut(true);
     const cookie = Cookies.get("user");
+
     if (cookie) {
       try {
         const json = JSON.parse(cookie);
@@ -262,7 +260,6 @@ export default function CartPage() {
         );
 
         const data = await res.json();
-        console.log("Checkout session created:", data);
 
         checkoutFlow({
           sessionId: data.id,
@@ -313,7 +310,6 @@ export default function CartPage() {
   const finalTax = discountedSubtotal * 0.08;
   const finalShipping = discountedSubtotal > 50 ? 0 : shipping;
   const total = discountedSubtotal + finalShipping + finalTax;
-
 
   return (
     <>

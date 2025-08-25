@@ -17,6 +17,7 @@ export async function setCookie(
     path: "/",
     sameSite: "lax",
     maxAge: SLIDING_EXPIRATION_SECONDS,
+    httpOnly: options?.httpOnly ?? false, 
     ...options,
   });
 }
